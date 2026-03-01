@@ -1,16 +1,22 @@
 <main class="login-main">
   <section class="login-card">
-    <h1>Iniciar Sesión</h1>
-    <p>Ingresa tus credenciales para continuar</p>
+    <h1>Bienvenidos a la Tienda Genérica</h1>
 
     <form class="login-form">
-      <label for="email">Correo electrónico</label>
-      <input id="email" type="email" placeholder="correo@ejemplo.com" />
+      <div class="form-group">
+        <label for="usuario">Usuario</label>
+        <input id="usuario" type="text" placeholder="Ingresa tu usuario" [(ngModel)]="usuario" name="usuario" />
+      </div>
 
-      <label for="password">Contraseña</label>
-      <input id="password" type="password" placeholder="********" />
+      <div class="form-group">
+        <label for="contrasena">Contraseña</label>
+        <input id="contrasena" type="password" placeholder="Ingresa tu contraseña" [(ngModel)]="contrasena" name="contrasena" />
+      </div>
 
-      <button type="button">Entrar</button>
+      <div class="button-group">
+        <button type="button" class="btn-aceptar" (click)="aceptar()">Aceptar</button>
+        <button type="button" class="btn-cancelar" (click)="cancelar()">Cancelar</button>
+      </div>
     </form>
   </section>
 </main>
