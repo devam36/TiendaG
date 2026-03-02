@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 
@@ -12,9 +13,17 @@ import { Subscription, filter } from 'rxjs';
 export class App implements OnInit, OnDestroy {
   private sub?: Subscription;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnInit(): void {
+    // Solo ejecutar en el navegador, no en SSR
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     // Recargar la página automáticamente cuando cambia la ruta (una vez por URL)
     this.sub = this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd)
