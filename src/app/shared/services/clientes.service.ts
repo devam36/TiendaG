@@ -35,14 +35,18 @@ export class ClientesService {
   clientesActualizados$ = this.clientesActualizados.asObservable();
 
   constructor(private http: HttpClient) {
-    this.cargarClientes().subscribe();
+    // No cargar automáticamente para evitar peticiones innecesarias en múltiples inyecciones.
   }
 
   /**
    * Obtiene todos los clientes
    */
-  cargarClientes(): Observable<ListaClientesResponse> {
-    return this.http.get<ListaClientesResponse>(this.apiUrl).pipe(
+  cargarClientes(limit?: number, offset?: number): Observable<ListaClientesResponse> {
+    const params: any = {};
+    if (limit) params.limit = limit.toString();
+    if (offset) params.offset = offset.toString();
+
+    return this.http.get<ListaClientesResponse>(this.apiUrl, { params }).pipe(
       tap(response => {
         if (response.success && response.data) {
           this.clientesActualizados.next(response.data);

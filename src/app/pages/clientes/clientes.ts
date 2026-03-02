@@ -28,6 +28,9 @@ export class ClientesComponent implements OnInit, OnDestroy {
   mensaje: { tipo: 'exito' | 'error' | ''; texto: string } = { tipo: '', texto: '' };
 
   private destroy$ = new Subject<void>();
+  // simple pagination
+  pageSize = 50;
+  page = 0;
 
   constructor(private clientesService: ClientesService) {}
 
@@ -42,7 +45,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
 
   cargarClientes(): void {
     this.isLoading = true;
-    this.clientesService.cargarClientes()
+    this.clientesService.cargarClientes(this.pageSize, this.page * this.pageSize)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
@@ -60,6 +63,18 @@ export class ClientesComponent implements OnInit, OnDestroy {
           console.error('Error:', error);
         }
       });
+  }
+
+  paginaSiguiente(): void {
+    this.page++;
+    this.cargarClientes();
+  }
+
+  paginaAnterior(): void {
+    if (this.page > 0) {
+      this.page--;
+      this.cargarClientes();
+    }
   }
 
   buscarPorCedula(): void {

@@ -28,7 +28,6 @@
               [(ngModel)]="cedulaBusqueda"
               placeholder="Ingrese cédula"
               (keyup.enter)="buscarPorCedula()"
-              [disabled]="isLoading"
               class="input-busqueda"
             >
             <button class="btn btn-buscar" (click)="buscarPorCedula()" [disabled]="isLoading">
@@ -54,7 +53,7 @@
               name="cedula_usuario"
               placeholder="Ej: 123456789"
               maxlength="15"
-              [disabled]="modo === 'actualizar' || isLoading"
+              [disabled]="modo === 'actualizar'"
               required
             >
             <span class="requerido">Campo obligatorio</span>
@@ -69,7 +68,6 @@
               [(ngModel)]="formulario.nombre_usuario"
               name="nombre_usuario"
               placeholder="Ej: Juan Pérez García"
-              [disabled]="isLoading"
               required
             >
             <span class="requerido">Campo obligatorio</span>
@@ -84,7 +82,6 @@
               [(ngModel)]="formulario.email_usuario"
               name="email_usuario"
               placeholder="Ej: juan@empresa.com"
-              [disabled]="isLoading"
               required
             >
             <span class="requerido">Campo obligatorio</span>
@@ -97,7 +94,6 @@
               id="rol"
               [(ngModel)]="formulario.usuario"
               name="usuario"
-              [disabled]="isLoading"
               required
             >
               <option value="">-- Seleccione un rol --</option>
@@ -119,7 +115,6 @@
               [(ngModel)]="formulario.password"
               name="password"
               placeholder="Ingrese contraseña segura"
-              [disabled]="isLoading"
               required
             >
             <span class="requerido">Campo obligatorio</span>

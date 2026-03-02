@@ -26,7 +26,6 @@
               type="text"
               [(ngModel)]="formulario.nitproveedor"
               placeholder="Ingrese NIT"
-              [disabled]="isLoading"
               class="input-busqueda"
             >
             <button
@@ -56,7 +55,7 @@
               name="nitproveedor"
               placeholder="Ej: 900123456"
               maxlength="20"
-              [disabled]="modo === 'actualizar' || isLoading"
+              [disabled]="modo === 'actualizar'"
               required
             >
             <span class="requerido">Campo obligatorio</span>
@@ -71,7 +70,6 @@
               [(ngModel)]="formulario.nombre_proveedor"
               name="nombre_proveedor"
               placeholder="Ej: Distribuidora Nacional S.A.S."
-              [disabled]="isLoading"
               required
             >
             <span class="requerido">Campo obligatorio</span>
@@ -86,7 +84,6 @@
               [(ngModel)]="formulario.direccion_proveedor"
               name="direccion_proveedor"
               placeholder="Ej: Calle 100 # 15-23"
-              [disabled]="isLoading"
               required
             >
             <span class="requerido">Campo obligatorio</span>
@@ -102,7 +99,6 @@
               name="telefono_proveedor"
               placeholder="Ej: 3201234567"
               maxlength="20"
-              [disabled]="isLoading"
               required
             >
             <span class="requerido">Campo obligatorio</span>
@@ -117,7 +113,6 @@
               [(ngModel)]="formulario.ciudad_proveedor"
               name="ciudad_proveedor"
               placeholder="Ej: Bogotá"
-              [disabled]="isLoading"
               required
             >
             <span class="requerido">Campo obligatorio</span>

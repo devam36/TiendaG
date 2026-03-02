@@ -1,1 +1,22 @@
 /* You can add global styles to this file, and also import other style files */
+/* Fix potenciales overlays invisibles que bloquean interacción */
+html, body, app-root, .layout-container, .main-content {
+	pointer-events: auto !important;
+}
+
+/* Si existe algún overlay dinámico, asegurar que no bloquee la UI por defecto */
+.overlay, .modal-backdrop, .app-blocker {
+	display: none !important;
+	pointer-events: none !important;
+}
+
+/* Mejora rendimiento visual: reducir sombras y animaciones en listas grandes */
+.tabla-contenedor, .tabla-clientes, .tabla-proveedores {
+	will-change: auto;
+	transition: none !important;
+}
+
+/* Mejor experiencia: inputs y botones deben ser interactivos por defecto */
+input, button, select, textarea {
+	-webkit-tap-highlight-color: transparent;
+}

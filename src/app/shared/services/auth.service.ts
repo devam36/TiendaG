@@ -65,12 +65,20 @@ export class AuthService {
           this.usuarioActual.next(response.user);
         }
       }),
-      catchError(error => {
+      catchError((error: any) => {
         console.error('❌ Error en login:', error);
-        console.error('   Detalles del error:', error.error);
+        const detalles = error?.error ?? error?.message ?? String(error);
+        console.error('   Detalles del error:', detalles);
+
+        const mensajeUsuario =
+          // status 0 o errores tipo TypeError suelen indicar fallo de conexión
+          error?.status === 0 || (typeof detalles === 'string' && detalles.includes('Failed to fetch')) || error instanceof TypeError
+            ? 'No se pudo conectar al servidor. Verifica que el backend esté ejecutándose en http://localhost:3000'
+            : error?.error?.error || 'Error al conectar con el servidor';
+
         return of({
           success: false,
-          error: error.error?.error || 'Error al conectar con el servidor'
+          error: mensajeUsuario
         });
       })
     );

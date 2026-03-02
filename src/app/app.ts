@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -8,4 +9,28 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {}
+export class App implements OnInit, OnDestroy {
+  private sub?: Subscription;
+
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {
+    // Recargar la página automáticamente cuando cambia la ruta (una vez por URL)
+    this.sub = this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd)
+    ).subscribe((e: NavigationEnd) => {
+      const url = e.urlAfterRedirects || e.url;
+      const last = sessionStorage.getItem('lastReloadedUrl');
+      if (last !== url) {
+        // marcar y recargar; la próxima carga verá la misma URL y no recargará de nuevo
+        sessionStorage.setItem('lastReloadedUrl', url);
+        // pequeña espera para asegurar que la navegación haya finalizado
+        setTimeout(() => window.location.reload(), 60);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+  }
+}

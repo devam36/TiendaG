@@ -294,9 +294,19 @@ app.delete('/api/usuarios/:cedula', async (req, res) => {
 // Obtener todos los clientes
 app.get('/api/clientes', async (req, res) => {
   try {
-    const result = await pool.query(
-      'SELECT cedula_cliente, nombre_cliente, direccion_cliente, telefono_cliente, email_cliente FROM clientes'
-    );
+    // soporta paginación opcional: ?limit=50&offset=0
+    const limit = parseInt(req.query.limit, 10) || null;
+    const offset = parseInt(req.query.offset, 10) || 0;
+
+    let queryText = 'SELECT cedula_cliente, nombre_cliente, direccion_cliente, telefono_cliente, email_cliente FROM clientes';
+    const params = [];
+
+    if (limit) {
+      queryText += ' LIMIT $1 OFFSET $2';
+      params.push(limit, offset);
+    }
+
+    const result = await pool.query(queryText, params);
     res.json({ success: true, data: result.rows });
   } catch (error) {
     console.error('Error obteniendo clientes:', error);

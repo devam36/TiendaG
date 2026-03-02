@@ -33,7 +33,13 @@ export class ProveedoresService {
   public proveedores$ = this.proveedoresSubject.asObservable();
 
   // Cargar todos los proveedores
-  cargarProveedores(): Observable<ProveedoresResponse> {
+  cargarProveedores(force: boolean = false): Observable<ProveedoresResponse> {
+    const cached = this.proveedoresSubject.getValue();
+    if (!force && cached && cached.length > 0) {
+      // devolver caché inmediatamente para UI responsiva
+      return of({ success: true, data: cached });
+    }
+
     return this.http.get<ProveedoresResponse>(this.apiUrl).pipe(
       tap(response => {
         if (response.success && response.data) {
