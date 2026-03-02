@@ -1,0 +1,230 @@
+<div class="proveedores-container">
+  <!-- Encabezado -->
+  <header class="encabezado">
+    <h1>Gestión de Proveedores</h1>
+    <p class="subtitulo">Crear, consultar, actualizar y eliminar proveedores registrados</p>
+  </header>
+
+  <!-- Mensaje de notificación -->
+  <div *ngIf="mensaje.texto" class="mensaje-container" [class.exito]="mensaje.tipo === 'exito'" [class.error]="mensaje.tipo === 'error'">
+    <div class="mensaje-contenido">
+      <span class="icono">{{ mensaje.tipo === 'exito' ? 'OK' : 'Error' }}</span>
+      <span class="texto">{{ mensaje.texto }}</span>
+    </div>
+  </div>
+
+  <div class="contenido-principal">
+    <!-- Panel lateral: Formulario -->
+    <aside class="panel-formulario">
+      <!-- Sección de búsqueda -->
+      <section class="seccion-busqueda">
+        <h2>Buscar y Crear Proveedor</h2>
+        <div class="busqueda-contenido">
+          <label class="busqueda-label">Buscar por NIT:</label>
+          <div class="grupo-busqueda">
+            <input
+              type="text"
+              [(ngModel)]="formulario.nitproveedor"
+              placeholder="Ingrese NIT"
+              [disabled]="isLoading"
+              class="input-busqueda"
+            >
+            <button
+              (click)="buscarPorNit()"
+              [disabled]="isLoading || !formulario.nitproveedor"
+              class="btn btn-buscar"
+            >
+              {{ isLoading ? 'Buscando...' : 'Buscar' }}
+            </button>
+          </div>
+          <p class="busqueda-ayuda">Dejar en blanco para crear nuevo proveedor</p>
+        </div>
+      </section>
+
+      <!-- Formulario principal -->
+      <section class="seccion-formulario">
+        <h2>{{ modo === 'crear' ? 'Crear Nuevo' : 'Actualizar' }} Proveedor</h2>
+
+        <form class="formulario-proveedores" (ngSubmit)="guardarProveedor()">
+          <!-- NIT -->
+          <div class="grupo-campo">
+            <label for="nit">NIT *</label>
+            <input
+              id="nit"
+              type="text"
+              [(ngModel)]="formulario.nitproveedor"
+              name="nitproveedor"
+              placeholder="Ej: 900123456"
+              maxlength="20"
+              [disabled]="modo === 'actualizar' || isLoading"
+              required
+            >
+            <span class="requerido">Campo obligatorio</span>
+          </div>
+
+          <!-- Nombre del Proveedor -->
+          <div class="grupo-campo">
+            <label for="nombre">Nombre del Proveedor *</label>
+            <input
+              id="nombre"
+              type="text"
+              [(ngModel)]="formulario.nombre_proveedor"
+              name="nombre_proveedor"
+              placeholder="Ej: Distribuidora Nacional S.A.S."
+              [disabled]="isLoading"
+              required
+            >
+            <span class="requerido">Campo obligatorio</span>
+          </div>
+
+          <!-- Dirección -->
+          <div class="grupo-campo">
+            <label for="direccion">Dirección *</label>
+            <input
+              id="direccion"
+              type="text"
+              [(ngModel)]="formulario.direccion_proveedor"
+              name="direccion_proveedor"
+              placeholder="Ej: Calle 100 # 15-23"
+              [disabled]="isLoading"
+              required
+            >
+            <span class="requerido">Campo obligatorio</span>
+          </div>
+
+          <!-- Teléfono -->
+          <div class="grupo-campo">
+            <label for="telefono">Teléfono *</label>
+            <input
+              id="telefono"
+              type="tel"
+              [(ngModel)]="formulario.telefono_proveedor"
+              name="telefono_proveedor"
+              placeholder="Ej: 3201234567"
+              maxlength="20"
+              [disabled]="isLoading"
+              required
+            >
+            <span class="requerido">Campo obligatorio</span>
+          </div>
+
+          <!-- Ciudad -->
+          <div class="grupo-campo">
+            <label for="ciudad">Ciudad *</label>
+            <input
+              id="ciudad"
+              type="text"
+              [(ngModel)]="formulario.ciudad_proveedor"
+              name="ciudad_proveedor"
+              placeholder="Ej: Bogotá"
+              [disabled]="isLoading"
+              required
+            >
+            <span class="requerido">Campo obligatorio</span>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="grupo-botones">
+            <button
+              type="submit"
+              class="btn btn-principal"
+              [disabled]="isLoading"
+            >
+              {{ isLoading ? 'Procesando...' : (modo === 'crear' ? 'Crear Proveedor' : 'Actualizar Proveedor') }}
+            </button>
+
+            <button
+              type="button"
+              (click)="eliminarProveedor()"
+              class="btn btn-peligro"
+              [disabled]="isLoading || !formulario.nitproveedor"
+            >
+              Eliminar
+            </button>
+
+            <button
+              type="button"
+              (click)="limpiarFormulario()"
+              class="btn btn-secundario"
+              [disabled]="isLoading"
+            >
+              Limpiar
+            </button>
+          </div>
+        </form>
+      </section>
+    </aside>
+
+    <!-- Panel principal: Lista de proveedores -->
+    <main class="panel-lista">
+      <section class="seccion-lista">
+        <div class="encabezado-lista">
+          <h2>Proveedores Registrados</h2>
+          <button
+            (click)="cargarProveedores()"
+            class="btn-recargar"
+            [disabled]="isLoading"
+            title="Recargar lista"
+          >
+            Recargar
+          </button>
+        </div>
+
+        <!-- Estado de carga -->
+        <div *ngIf="isLoading" class="estado-cargando">
+          <div class="spinner"></div>
+          <p>Cargando proveedores...</p>
+        </div>
+
+        <!-- Tabla de proveedores -->
+        <div *ngIf="!isLoading && proveedores.length > 0" class="tabla-contenedor">
+          <table class="tabla-proveedores">
+            <thead>
+              <tr>
+                <th>NIT</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Ciudad</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let proveedor of proveedores; trackBy: trackByNit">
+                <td>{{ proveedor.nitproveedor }}</td>
+                <td>{{ proveedor.nombre_proveedor }}</td>
+                <td>{{ proveedor.direccion_proveedor }}</td>
+                <td>{{ proveedor.telefono_proveedor }}</td>
+                <td>{{ proveedor.ciudad_proveedor }}</td>
+                <td class="celda-acciones">
+                  <button
+                    (click)="seleccionarProveedor(proveedor)"
+                    class="btn-accion editar"
+                    title="Editar"
+                    [disabled]="isLoading"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    (click)="eliminarDesdeTabla(proveedor.nitproveedor)"
+                    class="btn-accion eliminar"
+                    title="Eliminar"
+                    [disabled]="isLoading"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Estado vacío -->
+        <div *ngIf="!isLoading && proveedores.length === 0" class="estado-vacio">
+          <p>No hay proveedores registrados</p>
+          <small>Cree su primer proveedor usando el formulario</small>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>

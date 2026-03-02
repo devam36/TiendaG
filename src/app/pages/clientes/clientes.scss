@@ -1,0 +1,428 @@
+@use "sass:color";
+
+// Variables de colores
+$color-primario: #2563eb;
+$color-primario-hover: #1d4ed8;
+$color-secundario: #6b7280;
+$color-exito: #10b981;
+$color-exito-bg: #d1fae5;
+$color-error: #ef4444;
+$color-error-bg: #fee2e2;
+$color-advertencia: #f59e0b;
+$color-borde: #e5e7eb;
+$color-fondo: #f9fafb;
+$color-texto: #1f2937;
+$color-texto-ligero: #6b7280;
+
+// Fuentes y espaciado
+$font-principal: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$transicion: all 0.3s ease;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-space-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin sombra-suave {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+@mixin sombra-media {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+// Estilos generales
+.clientes-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+  padding: 2rem;
+  font-family: $font-principal;
+  color: $color-texto;
+}
+
+// Encabezado principal
+.encabezado {
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $color-texto;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitulo {
+    font-size: 1rem;
+    color: $color-texto-ligero;
+    margin: 0;
+  }
+}
+
+// Contenedor de mensajes
+.mensaje-container {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  @include sombra-suave;
+  animation: slideDown 0.3s ease;
+
+  .mensaje-contenido {
+    @include flex-space-between;
+    gap: 1rem;
+  }
+
+  .icono {
+    font-weight: bold;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .texto {
+    flex: 1;
+  }
+
+  &.exito {
+    background-color: $color-exito-bg;
+    color: #047857;
+    border-left: 4px solid $color-exito;
+  }
+
+  &.error {
+    background-color: $color-error-bg;
+    color: #991b1b;
+    border-left: 4px solid $color-error;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Contenido principal
+.contenido-principal {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+  max-width: 2000px;
+  margin: 0 auto;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Panel de formulario
+.panel-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.seccion-busqueda,
+.seccion-formulario,
+.seccion-lista {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  @include sombra-media;
+  transition: $transicion;
+  position: relative;
+  z-index: 1;
+
+  &:hover {
+    @include sombra-media;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+    color: $color-texto;
+    border-bottom: 2px solid $color-primario;
+    padding-bottom: 0.75rem;
+  }
+}
+
+// Búsqueda
+.busqueda-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .busqueda-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: $color-texto;
+    margin: 0;
+  }
+
+  .busqueda-ayuda {
+    font-size: 0.875rem;
+    color: $color-texto-ligero;
+    margin: 0.5rem 0 0 0;
+    font-style: italic;
+  }
+}
+
+.grupo-busqueda {
+  display: flex;
+  gap: 0.75rem;
+
+  .input-busqueda {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid $color-borde;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: $transicion;
+    position: relative;
+    z-index: 25;
+    background-color: white;
+    pointer-events: auto;
+
+    &:focus {
+      outline: none;
+      border-color: $color-primario;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+  }
+
+  .btn-buscar {
+    padding: 0.75rem 1.5rem;
+    background-color: $color-primario;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: $transicion;
+    white-space: nowrap;
+    position: relative;
+    z-index: 20;
+    pointer-events: auto;
+
+    &:hover:not(:disabled) {
+      background-color: $color-primario-hover;
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      background-color: $color-borde;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}
+
+// Formulario
+.formulario-clientes {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+  z-index: 10;
+}
+
+.grupo-campo {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 15;
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: $color-texto;
+    font-size: 0.95rem;
+    position: relative;
+    z-index: 10;
+  }
+
+  input,
+  select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid $color-borde;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: $transicion;
+    position: relative;
+    z-index: 25;
+    background-color: white;
+    pointer-events: auto;
+
+    &:focus {
+      outline: none;
+      border-color: $color-primario;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    &:disabled {
+      background-color: $color-fondo;
+      cursor: not-allowed;
+      color: $color-texto-ligero;
+    }
+  }
+
+  .requerido {
+    display: block;
+    font-size: 0.85rem;
+    color: $color-error;
+    margin-top: 0.25rem;
+  }
+}
+
+.grupo-botones {
+  display: flex;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 20;
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: $transicion;
+    position: relative;
+    z-index: 20;
+    pointer-events: auto;
+
+    &-principal {
+      background-color: $color-primario;
+      color: white;
+
+      &:hover {
+        background-color: $color-primario-hover;
+      }
+
+      &:disabled {
+        background-color: $color-borde;
+        cursor: not-allowed;
+      }
+    }
+
+    &-secundario {
+      background-color: $color-secundario;
+      color: white;
+
+      &:hover {
+        background-color: color.mix(#000, $color-secundario, 10%);
+      }
+
+      &:disabled {
+        background-color: $color-borde;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// Lista
+.encabezado-lista {
+  @include flex-space-between;
+  align-items: center;
+
+  h2 {
+    margin: 0;
+  }
+
+  .btn-recargar {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+}
+
+.tabla-contenedor {
+  overflow-x: auto;
+}
+
+.tabla-clientes {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid $color-borde;
+  }
+
+  tbody tr:hover {
+    background-color: $color-fondo;
+  }
+
+  .rol-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    text-transform: capitalize;
+  }
+
+  .celda-acciones {
+    display: flex;
+    gap: 0.5rem;
+
+    .btn-accion {
+      padding: 0.25rem 0.5rem;
+      border: none;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      transition: $transicion;
+
+      &.editar {
+        background-color: $color-primario;
+        color: white;
+
+        &:hover {
+          background-color: $color-primario-hover;
+        }
+      }
+
+      &.eliminar {
+        background-color: $color-error;
+        color: white;
+
+        &:hover {
+          background-color: color.mix(#000, $color-error, 10%);
+        }
+      }
+
+      &:disabled {
+        background-color: $color-borde;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+.estado-vacio {
+  text-align: center;
+  padding: 2rem;
+  color: $color-texto-ligero;
+
+  .icono-vacio {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+}

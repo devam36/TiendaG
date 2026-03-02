@@ -1,21 +1,29 @@
-<main class="login-main">
+﻿<main class="login-main">
   <section class="login-card">
     <h1>Bienvenidos a la Tienda Genérica</h1>
 
     <form class="login-form">
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
       <div class="form-group">
-        <label for="usuario">Usuario</label>
-        <input id="usuario" type="text" placeholder="Ingresa tu usuario" [(ngModel)]="usuario" name="usuario" />
+        <label for="nombre_usuario">Nombre de usuario</label>
+        <input id="nombre_usuario" type="text" placeholder="Ingresa tu nombre de usuario" [(ngModel)]="nombre_usuario" name="nombre_usuario" [disabled]="isLoading" />
       </div>
 
       <div class="form-group">
         <label for="contrasena">Contraseña</label>
-        <input id="contrasena" type="password" placeholder="Ingresa tu contraseña" [(ngModel)]="contrasena" name="contrasena" />
+        <input id="contrasena" type="password" placeholder="Ingresa tu contraseña" [(ngModel)]="contrasena" name="contrasena" [disabled]="isLoading" />
       </div>
 
       <div class="button-group">
-        <button type="button" class="btn-aceptar" (click)="aceptar()">Aceptar</button>
-        <button type="button" class="btn-cancelar" (click)="cancelar()">Cancelar</button>
+        <button type="button" class="btn-aceptar" (click)="aceptar()" [disabled]="isLoading">
+          {{ isLoading ? 'Verificando...' : 'Aceptar' }}
+        </button>
+        <button type="button" class="btn-cancelar" (click)="cancelar()" [disabled]="isLoading">
+          Cancelar
+        </button>
       </div>
     </form>
   </section>

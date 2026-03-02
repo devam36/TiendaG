@@ -76,17 +76,22 @@
     cursor: pointer;
     transition: all 0.3s ease;
 
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     &.btn-aceptar {
       background: #2c3e50;
       color: #ffffff;
 
-      &:hover {
+      &:hover:not(:disabled) {
         background: #1a252f;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
       }
 
-      &:active {
+      &:active:not(:disabled) {
         transform: translateY(0);
       }
     }
@@ -95,15 +100,25 @@
       background: #e5e7eb;
       color: #374151;
 
-      &:hover {
+      &:hover:not(:disabled) {
         background: #d1d5db;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
-      &:active {
+      &:active:not(:disabled) {
         transform: translateY(0);
       }
     }
+  }
+
+  .error-message {
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 0.875rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
   }
 }

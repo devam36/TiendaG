@@ -1,0 +1,594 @@
+// Variables de colores
+$color-primario: #2563eb;
+$color-primario-hover: #1d4ed8;
+$color-secundario: #6b7280;
+$color-exito: #10b981;
+$color-exito-bg: #d1fae5;
+$color-error: #ef4444;
+$color-error-bg: #fee2e2;
+$color-advertencia: #f59e0b;
+$color-borde: #e5e7eb;
+$color-fondo: #f9fafb;
+$color-texto: #1f2937;
+$color-texto-ligero: #6b7280;
+
+// Fuentes y espaciado
+$font-principal: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$transicion: all 0.3s ease;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-space-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin sombra-suave {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+@mixin sombra-media {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+// Estilos generales
+.usuarios-container {
+  min-height: calc(100vh - 60px);
+  background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+  padding: 2rem;
+  font-family: $font-principal;
+  color: $color-texto;
+  position: relative;
+  z-index: 1;
+}
+
+// Encabezado principal
+.encabezado {
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $color-texto;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitulo {
+    font-size: 1rem;
+    color: $color-texto-ligero;
+    margin: 0;
+  }
+}
+
+// Contenedor de mensajes
+.mensaje-container {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  @include sombra-suave;
+  animation: slideDown 0.3s ease;
+
+  .mensaje-contenido {
+    @include flex-space-between;
+    gap: 1rem;
+  }
+
+  .icono {
+    font-weight: bold;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .texto {
+    flex: 1;
+  }
+
+  &.exito {
+    background-color: $color-exito-bg;
+    color: #047857;
+    border-left: 4px solid $color-exito;
+  }
+
+  &.error {
+    background-color: $color-error-bg;
+    color: #991b1b;
+    border-left: 4px solid $color-error;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Contenido principal
+.contenido-principal {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+  max-width: 2000px;
+  margin: 0 auto;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Panel de formulario
+.panel-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.seccion-busqueda,
+.seccion-formulario,
+.seccion-lista {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  @include sombra-media;
+  transition: $transicion;
+  position: relative;
+  z-index: 2;
+
+  &:hover {
+    @include sombra-media;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem 0;
+    color: $color-texto;
+    border-bottom: 2px solid $color-primario;
+    padding-bottom: 0.75rem;
+  }
+}
+
+// Búsqueda
+.busqueda-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .busqueda-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: $color-texto;
+    margin: 0;
+  }
+
+  .busqueda-ayuda {
+    font-size: 0.875rem;
+    color: $color-texto-ligero;
+    margin: 0.5rem 0 0 0;
+    font-style: italic;
+  }
+}
+
+.grupo-busqueda {
+  display: flex;
+  gap: 0.75rem;
+
+  .input-busqueda {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid $color-borde;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: $transicion;
+    position: relative;
+    z-index: 20;
+    background-color: white;
+
+    &:focus {
+      outline: none;
+      border-color: $color-primario;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    &:disabled {
+      background-color: $color-fondo;
+      cursor: not-allowed;
+      color: $color-texto-ligero;
+    }
+  }
+
+  .btn-buscar {
+    padding: 0.75rem 1.5rem;
+    background-color: $color-primario;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: $transicion;
+    white-space: nowrap;
+    position: relative;
+    z-index: 10;
+
+    &:hover:not(:disabled) {
+      background-color: $color-primario-hover;
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      background-color: $color-borde;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+}
+
+// Formulario
+.formulario-usuarios {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.grupo-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-weight: 600;
+    color: $color-texto;
+    font-size: 0.95rem;
+  }
+
+  input,
+  select {
+    padding: 0.75rem;
+    border: 1px solid $color-borde;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-family: $font-principal;
+    transition: $transicion;
+    position: relative;
+    z-index: 10;
+    cursor: text;
+
+    &:focus {
+      outline: none;
+      border-color: $color-primario;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      z-index: 20;
+    }
+
+    &:disabled {
+      background-color: $color-fondo;
+      cursor: not-allowed;
+      color: $color-texto-ligero;
+    }
+  }
+
+  select {
+    cursor: pointer;
+  }
+
+  .requerido {
+    font-size: 0.8rem;
+    color: $color-texto-ligero;
+  }
+}
+
+// Botones
+.grupo-botones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transicion;
+  font-size: 1rem;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &-principal {
+    background-color: $color-primario;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: $color-primario-hover;
+      transform: translateY(-1px);
+      @include sombra-media;
+    }
+  }
+
+  &-secundario {
+    background-color: $color-secundario;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: #4b5563;
+      transform: translateY(-1px);
+      @include sombra-media;
+    }
+  }
+}
+
+// Panel de usuarios
+.panel-usuarios {
+  min-height: 500px;
+}
+
+.encabezado-lista {
+  @include flex-space-between;
+  margin-bottom: 1.5rem;
+
+  h2 {
+    margin: 0;
+  }
+
+  .btn-recargar {
+    padding: 0.5rem 1rem;
+    background-color: $color-fondo;
+    color: $color-texto;
+    border: 1px solid $color-borde;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: $transicion;
+    font-weight: 500;
+
+    &:hover:not(:disabled) {
+      background-color: $color-primario;
+      color: white;
+      border-color: $color-primario;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Tabla
+.tabla-contenedor {
+  overflow-x: auto;
+}
+
+.tabla-usuarios {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+
+  thead {
+    background-color: #f3f4f6;
+    border-bottom: 2px solid $color-borde;
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: $color-texto;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid $color-borde;
+      transition: $transicion;
+
+      &:hover {
+        background-color: #f9fafb;
+      }
+
+      &.seleccionado {
+        background-color: rgba(37, 99, 235, 0.05);
+
+        td {
+          font-weight: 500;
+          color: $color-primario;
+        }
+      }
+
+      td {
+        padding: 1rem;
+      }
+    }
+  }
+}
+
+// Rol badge
+.rol-badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.admin {
+    background-color: #fee2e2;
+    color: #991b1b;
+  }
+
+  &.vendedor {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+
+  &.supervisor {
+    background-color: #fcd34d;
+    color: #78350f;
+  }
+
+  &.gerente {
+    background-color: #d1d5db;
+    color: #374151;
+  }
+
+  &.cajero {
+    background-color: #cffafe;
+    color: #164e63;
+  }
+}
+
+// Acciones
+.celda-acciones {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  .btn-accion {
+    padding: 0.5rem 0.75rem;
+    border: none;
+    border-radius: 0.35rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: $transicion;
+    font-weight: 500;
+    white-space: nowrap;
+
+    &.editar {
+      background-color: #dbeafe;
+      color: #1e40af;
+
+      &:hover:not(:disabled) {
+        background-color: #bfdbfe;
+        transform: translateY(-1px);
+      }
+    }
+
+    &.eliminar {
+      background-color: #fee2e2;
+      color: #991b1b;
+
+      &:hover:not(:disabled) {
+        background-color: #fecaca;
+        transform: translateY(-1px);
+      }
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Estado vacío
+.estado-vacio {
+  @include flex-center;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: $color-texto-ligero;
+
+  .icono-vacio {
+    font-size: 3rem;
+    opacity: 0.5;
+  }
+
+  h3 {
+    margin: 0;
+    color: $color-texto;
+    font-size: 1.2rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .usuarios-container {
+    padding: 1rem;
+  }
+
+  .encabezado {
+    h1 {
+      font-size: 1.8rem;
+    }
+  }
+
+  .contenido-principal {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .grupo-botones {
+    grid-template-columns: 1fr;
+  }
+
+  .seccion-busqueda,
+  .seccion-formulario,
+  .seccion-lista {
+    padding: 1rem;
+  }
+
+  .tabla-usuarios {
+    font-size: 0.85rem;
+
+    thead th,
+    tbody td {
+      padding: 0.75rem 0.5rem;
+    }
+  }
+
+  .celda-acciones {
+    flex-direction: column;
+
+    .btn-accion {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .tabla-usuarios {
+    font-size: 0.75rem;
+
+    thead th,
+    tbody td {
+      padding: 0.5rem;
+    }
+  }
+
+  .encabezado-lista {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+
+    h2 {
+      margin: 0;
+    }
+
+    .btn-recargar {
+      width: 100%;
+    }
+  }
+}

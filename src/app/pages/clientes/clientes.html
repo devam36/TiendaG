@@ -1,0 +1,208 @@
+<div class="clientes-container">
+  <!-- Encabezado -->
+  <header class="encabezado">
+    <h1> Gestión de Clientes</h1>
+    <p class="subtitulo">Crear, actualizar y eliminar clientes registrados</p>
+  </header>
+
+  <!-- Mensaje de notificación -->
+  <div *ngIf="mensaje.texto" class="mensaje-container" [class.exito]="mensaje.tipo === 'exito'" [class.error]="mensaje.tipo === 'error'">
+    <div class="mensaje-contenido">
+      <span class="icono">{{ mensaje.tipo === 'exito' ? 'OK' : 'Error' }}</span>
+      <span class="texto">{{ mensaje.texto }}</span>
+    </div>
+  </div>
+
+  <div class="contenido-principal">
+    <!-- Panel lateral: Formulario -->
+    <aside class="panel-formulario">
+      <!-- Sección de búsqueda -->
+      <section class="seccion-busqueda">
+        <h2>Buscar y Crear Cliente</h2>
+        <div class="busqueda-contenido">
+          <label class="busqueda-label">Buscar por cédula:</label>
+          <div class="grupo-busqueda">
+            <input
+              type="text"
+              [(ngModel)]="formulario.cedula_cliente"
+              placeholder="Ingrese cédula"
+              [disabled]="isLoading"
+              class="input-busqueda"
+            >
+            <button
+              (click)="buscarPorCedula()"
+              [disabled]="isLoading || !formulario.cedula_cliente"
+              class="btn btn-buscar"
+            >
+              {{ isLoading ? 'Buscando...' : 'Buscar' }}
+            </button>
+          </div>
+          <p class="busqueda-ayuda">Dejar en blanco para crear nuevo cliente</p>
+        </div>
+      </section>
+
+      <!-- Formulario principal -->
+      <section class="seccion-formulario">
+        <h2>{{ modo === 'crear' ? 'Crear Nuevo' : 'Actualizar' }} Cliente</h2>
+
+        <form class="formulario-clientes" (ngSubmit)="guardarCliente()">
+          <!-- Cédula -->
+          <div class="grupo-campo">
+            <label for="cedula">Cédula *</label>
+            <input
+              id="cedula"
+              type="number"
+              [(ngModel)]="formulario.cedula_cliente"
+              name="cedula_cliente"
+              placeholder="Ej: 123456789"
+              maxlength="15"
+              [disabled]="modo === 'actualizar' || isLoading"
+              required
+            >
+            <span class="requerido">Campo obligatorio</span>
+          </div>
+
+          <!-- Nombre -->
+          <div class="grupo-campo">
+            <label for="nombre">Nombre *</label>
+            <input
+              id="nombre"
+              type="text"
+              [(ngModel)]="formulario.nombre_cliente"
+              name="nombre_cliente"
+              placeholder="Ej: Juan Pérez García"
+              [disabled]="isLoading"
+              required
+            >
+            <span class="requerido">Campo obligatorio</span>
+          </div>
+
+          <!-- Dirección -->
+          <div class="grupo-campo">
+            <label for="direccion">Dirección</label>
+            <input
+              id="direccion"
+              type="text"
+              [(ngModel)]="formulario.direccion_cliente"
+              name="direccion_cliente"
+              placeholder="Ej: Calle 123, Ciudad"
+              [disabled]="isLoading"
+            >
+          </div>
+
+          <!-- Teléfono -->
+          <div class="grupo-campo">
+            <label for="telefono">Teléfono</label>
+            <input
+              id="telefono"
+              type="tel"
+              [(ngModel)]="formulario.telefono_cliente"
+              name="telefono_cliente"
+              placeholder="Ej: +57 300 1234567"
+              [disabled]="isLoading"
+            >
+          </div>
+
+          <!-- Correo Electrónico -->
+          <div class="grupo-campo">
+            <label for="email">Correo Electrónico *</label>
+            <input
+              id="email"
+              type="email"
+              [(ngModel)]="formulario.email_cliente"
+              name="email_cliente"
+              placeholder="Ej: cliente@correo.com"
+              [disabled]="isLoading"
+              required
+            >
+            <span class="requerido">Campo obligatorio</span>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="grupo-botones">
+            <button 
+              type="submit" 
+              class="btn btn-principal"
+              [disabled]="isLoading"
+            >
+              {{ isLoading ? 'Procesando...' : (modo === 'crear' ? 'Crear Cliente' : 'Actualizar Cliente') }}
+            </button>
+
+            <button 
+              type="button" 
+              class="btn btn-secundario"
+              (click)="cancelar()"
+              [disabled]="isLoading"
+            >
+              Limpiar
+            </button>
+          </div>
+        </form>
+      </section>
+    </aside>
+
+    <!-- Panel principal: Lista de clientes -->
+    <main class="panel-clientes">
+      <section class="seccion-lista">
+        <div class="encabezado-lista">
+          <h2>Lista de Clientes ({{ clientes.length }})</h2>
+          <button class="btn-recargar" (click)="cargarClientes()" [disabled]="isLoading" title="Recargar lista">
+            ↻ Recargar
+          </button>
+        </div>
+
+        <!-- Tabla de clientes -->
+        <div class="tabla-contenedor" *ngIf="clientes.length > 0; else sinClientes">
+          <table class="tabla-clientes">
+            <thead>
+              <tr>
+                <th>Cédula</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of clientes" [class.seleccionado]="clienteSeleccionado?.cedula_cliente === c.cedula_cliente">
+                <td>{{ c.cedula_cliente }}</td>
+                <td>{{ c.nombre_cliente }}</td>
+                <td>{{ c.direccion_cliente }}</td>
+                <td>{{ c.telefono_cliente }}</td>
+                <td>{{ c.email_cliente }}</td>
+                <td class="celda-acciones">
+                  <button 
+                    class="btn-accion editar"
+                    (click)="seleccionarCliente(c)"
+                    [disabled]="isLoading"
+                    title="Editar cliente"
+                  >
+                    Editar
+                  </button>
+                  <button 
+                    class="btn-accion eliminar"
+                    (click)="eliminarCliente(c.cedula_cliente)"
+                    [disabled]="isLoading"
+                    title="Eliminar cliente"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Estado vacío -->
+        <ng-template #sinClientes>
+          <div class="estado-vacio">
+            <div class="icono-vacio">🧾</div>
+            <h3>No hay clientes registrados</h3>
+            <p>Usa el formulario para crear el primero</p>
+          </div>
+        </ng-template>
+      </section>
+    </main>
+  </div>
+</div>
