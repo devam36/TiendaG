@@ -129,14 +129,14 @@ async function asegurarTablaProductos(client) {
 // - nombre_usuario: campo usado para el login (username: "admin", "maria", etc.)
 // - usuario: campo que indica el tipo/rol del usuario ("admin", "vendedor", "supervisor")
 app.post('/api/login', async (req, res) => {
-  console.log('📍 Solicitud recibida en /api/login');
+  console.log('Solicitud recibida en /api/login');
   console.log('Headers:', req.headers);
   console.log('Body recibido:', req.body);
   
   const { nombre_usuario, contrasena } = req.body;
 
   if (!nombre_usuario || !contrasena) {
-    console.log('❌ Validación fallida - Campos faltantes');
+    console.log('Validación fallida - Campos faltantes');
     console.log('   nombre_usuario:', nombre_usuario);
     console.log('   contrasena:', contrasena);
     return res.status(400).json({ 
@@ -146,7 +146,7 @@ app.post('/api/login', async (req, res) => {
   }
 
   try {
-    console.log(`🔍 Buscando usuario: ${nombre_usuario}`);
+    console.log(`Buscando usuario: ${nombre_usuario}`);
     // Buscar por nombre_usuario (el username para login)
     const result = await pool.query(
       'SELECT cedula_usuario, usuario, nombre_usuario, email_usuario FROM usuarios WHERE nombre_usuario = $1 AND password = $2',
@@ -154,7 +154,7 @@ app.post('/api/login', async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      console.log('❌ Usuario o contraseña inválido');
+      console.log('Usuario o contraseña inválido');
       return res.status(401).json({ 
         success: false, 
         error: 'Usuario o contraseña inválidos' 
@@ -162,14 +162,14 @@ app.post('/api/login', async (req, res) => {
     }
 
     const usuarioData = result.rows[0];
-    console.log('✅ Login exitoso:', usuarioData.nombre_usuario);
+    console.log('Login exitoso:', usuarioData.nombre_usuario);
     res.json({ 
       success: true, 
       message: 'Login exitoso',
       user: usuarioData 
     });
   } catch (error) {
-    console.error('❌ Error en login:', error);
+    console.error('Error en login:', error);
     res.status(500).json({ 
       success: false, 
       error: 'Error en la base de datos: ' + error.message
@@ -184,7 +184,7 @@ app.post('/api/login', async (req, res) => {
 // Obtener todos los usuarios
 app.get('/api/usuarios', async (req, res) => {
   try {
-    console.log('📍 GET /api/usuarios');
+    console.log('GET /api/usuarios');
     const result = await pool.query(
       'SELECT cedula_usuario, usuario, nombre_usuario, email_usuario, password FROM usuarios ORDER BY cedula_usuario'
     );
@@ -195,7 +195,7 @@ app.get('/api/usuarios', async (req, res) => {
       data: result.rows
     });
   } catch (error) {
-    console.error('❌ Error obteniendo usuarios:', error);
+    console.error('Error obteniendo usuarios:', error);
     res.status(500).json({ 
       success: false,
       error: 'Error en la base de datos: ' + error.message 
@@ -207,7 +207,7 @@ app.get('/api/usuarios', async (req, res) => {
 app.get('/api/usuarios/cedula/:cedula', async (req, res) => {
   try {
     const { cedula } = req.params;
-    console.log('📍 GET /api/usuarios/cedula/' + cedula);
+    console.log('GET /api/usuarios/cedula/' + cedula);
     
     const result = await pool.query(
       'SELECT cedula_usuario, usuario, nombre_usuario, email_usuario, password FROM usuarios WHERE cedula_usuario = $1',
@@ -227,7 +227,7 @@ app.get('/api/usuarios/cedula/:cedula', async (req, res) => {
       data: result.rows[0]
     });
   } catch (error) {
-    console.error('❌ Error obteniendo usuario:', error);
+    console.error('Error obteniendo usuario:', error);
     res.status(500).json({ 
       success: false,
       error: 'Error en la base de datos: ' + error.message 
@@ -239,7 +239,7 @@ app.get('/api/usuarios/cedula/:cedula', async (req, res) => {
 app.post('/api/usuarios', async (req, res) => {
   try {
     const { cedula_usuario, usuario, nombre_usuario, email_usuario, password } = req.body;
-    console.log('📍 POST /api/usuarios', { cedula_usuario, usuario, nombre_usuario, email_usuario });
+    console.log('POST /api/usuarios', { cedula_usuario, usuario, nombre_usuario, email_usuario });
 
     // Validaciones
     if (!cedula_usuario || !usuario || !nombre_usuario || !email_usuario || !password) {
@@ -267,14 +267,14 @@ app.post('/api/usuarios', async (req, res) => {
       [cedula_usuario, usuario, nombre_usuario, email_usuario, password]
     );
 
-    console.log('✅ Usuario creado:', result.rows[0].nombre_usuario);
+    console.log('Usuario creado:', result.rows[0].nombre_usuario);
     res.status(201).json({
       success: true,
       message: 'Usuario creado correctamente',
       data: result.rows[0]
     });
   } catch (error) {
-    console.error('❌ Error creando usuario:', error);
+    console.error('Error creando usuario:', error);
     res.status(500).json({ 
       success: false,
       error: 'Error en la base de datos: ' + error.message 
@@ -287,7 +287,7 @@ app.put('/api/usuarios/:cedula', async (req, res) => {
   try {
     const { cedula } = req.params;
     const { cedula_usuario, usuario, nombre_usuario, email_usuario, password } = req.body;
-    console.log('📍 PUT /api/usuarios/' + cedula, { usuario, nombre_usuario });
+    console.log('PUT /api/usuarios/' + cedula, { usuario, nombre_usuario });
 
     // Validaciones
     if (!usuario || !nombre_usuario || !email_usuario || !password) {
@@ -315,14 +315,14 @@ app.put('/api/usuarios/:cedula', async (req, res) => {
       [usuario, nombre_usuario, email_usuario, password, cedula]
     );
 
-    console.log('✅ Usuario actualizado:', result.rows[0].nombre_usuario);
+    console.log('Usuario actualizado:', result.rows[0].nombre_usuario);
     res.json({
       success: true,
       message: 'Usuario actualizado correctamente',
       data: result.rows[0]
     });
   } catch (error) {
-    console.error('❌ Error actualizando usuario:', error);
+    console.error('Error actualizando usuario:', error);
     res.status(500).json({ 
       success: false,
       error: 'Error en la base de datos: ' + error.message 
@@ -334,7 +334,7 @@ app.put('/api/usuarios/:cedula', async (req, res) => {
 app.delete('/api/usuarios/:cedula', async (req, res) => {
   try {
     const { cedula } = req.params;
-    console.log('📍 DELETE /api/usuarios/' + cedula);
+    console.log('DELETE /api/usuarios/' + cedula);
 
     // Verificar si el usuario existe
     const usuarioExistente = await pool.query(
@@ -354,13 +354,13 @@ app.delete('/api/usuarios/:cedula', async (req, res) => {
       [cedula]
     );
 
-    console.log('✅ Usuario eliminado:', usuarioExistente.rows[0].nombre_usuario);
+    console.log('Usuario eliminado:', usuarioExistente.rows[0].nombre_usuario);
     res.json({
       success: true,
       message: 'Usuario eliminado correctamente'
     });
   } catch (error) {
-    console.error('❌ Error eliminando usuario:', error);
+    console.error('Error eliminando usuario:', error);
     res.status(500).json({ 
       success: false,
       error: 'Error en la base de datos: ' + error.message 
@@ -520,19 +520,19 @@ app.delete('/api/clientes/:cedula', async (req, res) => {
 // Obtener todos los proveedores
 app.get('/api/proveedores', async (req, res) => {
   try {
-    console.log('📍 GET /api/proveedores');
+    console.log('GET /api/proveedores');
     const result = await pool.query(
       'SELECT nitproveedor, nombre_proveedor, direccion_proveedor, telefono_proveedor, ciudad_proveedor FROM proveedores ORDER BY nombre_proveedor'
     );
     
-    console.log(`✅ Proveedores obtenidos: ${result.rows.length} registros`);
+    console.log(`Proveedores obtenidos: ${result.rows.length} registros`);
     res.json({
       success: true,
       message: 'Proveedores obtenidos correctamente',
       data: result.rows
     });
   } catch (error) {
-    console.error('❌ Error obteniendo proveedores:', error);
+    console.error('Error obteniendo proveedores:', error);
     res.status(500).json({ 
       success: false,
       error: 'Error en la base de datos: ' + error.message 
@@ -544,7 +544,7 @@ app.get('/api/proveedores', async (req, res) => {
 app.get('/api/proveedores/:nit', async (req, res) => {
   try {
     const { nit } = req.params;
-    console.log('📍 GET /api/proveedores/' + nit);
+    console.log('GET /api/proveedores/' + nit);
     
     const result = await pool.query(
       'SELECT nitproveedor, nombre_proveedor, direccion_proveedor, telefono_proveedor, ciudad_proveedor FROM proveedores WHERE nitproveedor = $1',
@@ -564,7 +564,7 @@ app.get('/api/proveedores/:nit', async (req, res) => {
       data: result.rows[0]
     });
   } catch (error) {
-    console.error('❌ Error obteniendo proveedor:', error);
+    console.error('Error obteniendo proveedor:', error);
     res.status(500).json({ 
       success: false,
       error: 'Error en la base de datos: ' + error.message 
@@ -576,7 +576,7 @@ app.get('/api/proveedores/:nit', async (req, res) => {
 app.post('/api/proveedores', async (req, res) => {
   try {
     const { nitproveedor, nombre_proveedor, direccion_proveedor, telefono_proveedor, ciudad_proveedor } = req.body;
-    console.log('📍 POST /api/proveedores', { nitproveedor, nombre_proveedor, ciudad_proveedor });
+    console.log('POST /api/proveedores', { nitproveedor, nombre_proveedor, ciudad_proveedor });
 
     // Validaciones
     if (!nitproveedor || !nombre_proveedor || !direccion_proveedor || !telefono_proveedor || !ciudad_proveedor) {
@@ -604,14 +604,14 @@ app.post('/api/proveedores', async (req, res) => {
       [nitproveedor, nombre_proveedor, direccion_proveedor, telefono_proveedor, ciudad_proveedor]
     );
 
-    console.log('✅ Proveedor creado:', result.rows[0].nombre_proveedor);
+    console.log('Proveedor creado:', result.rows[0].nombre_proveedor);
     res.status(201).json({
       success: true,
       message: 'Proveedor creado correctamente',
       data: result.rows[0]
     });
   } catch (error) {
-    console.error('❌ Error creando proveedor:', error);
+    console.error('Error creando proveedor:', error);
     res.status(500).json({ 
       success: false,
       message: 'Error en la base de datos: ' + error.message 
@@ -624,7 +624,7 @@ app.put('/api/proveedores/:nit', async (req, res) => {
   try {
     const { nit } = req.params;
     const { nombre_proveedor, direccion_proveedor, telefono_proveedor, ciudad_proveedor } = req.body;
-    console.log('📍 PUT /api/proveedores/' + nit, { nombre_proveedor, ciudad_proveedor });
+    console.log('PUT /api/proveedores/' + nit, { nombre_proveedor, ciudad_proveedor });
 
     // Validaciones
     if (!nombre_proveedor || !direccion_proveedor || !telefono_proveedor || !ciudad_proveedor) {
@@ -652,14 +652,14 @@ app.put('/api/proveedores/:nit', async (req, res) => {
       [nombre_proveedor, direccion_proveedor, telefono_proveedor, ciudad_proveedor, nit]
     );
 
-    console.log('✅ Proveedor actualizado:', result.rows[0].nombre_proveedor);
+    console.log('Proveedor actualizado:', result.rows[0].nombre_proveedor);
     res.json({
       success: true,
       message: 'Proveedor actualizado correctamente',
       data: result.rows[0]
     });
   } catch (error) {
-    console.error('❌ Error actualizando proveedor:', error);
+    console.error('Error actualizando proveedor:', error);
     res.status(500).json({ 
       success: false,
       message: 'Error en la base de datos: ' + error.message 
@@ -671,7 +671,7 @@ app.put('/api/proveedores/:nit', async (req, res) => {
 app.delete('/api/proveedores/:nit', async (req, res) => {
   try {
     const { nit } = req.params;
-    console.log('📍 DELETE /api/proveedores/' + nit);
+    console.log('DELETE /api/proveedores/' + nit);
 
     // Verificar si el proveedor existe
     const proveedorExistente = await pool.query(
@@ -691,13 +691,13 @@ app.delete('/api/proveedores/:nit', async (req, res) => {
       [nit]
     );
 
-    console.log('✅ Proveedor eliminado:', proveedorExistente.rows[0].nombre_proveedor);
+    console.log('Proveedor eliminado:', proveedorExistente.rows[0].nombre_proveedor);
     res.json({
       success: true,
       message: 'Proveedor eliminado correctamente'
     });
   } catch (error) {
-    console.error('❌ Error eliminando proveedor:', error);
+    console.error('Error eliminando proveedor:', error);
     res.status(500).json({ 
       success: false,
       message: 'Error en la base de datos: ' + error.message 
@@ -731,7 +731,7 @@ app.get('/api/productos', async (req, res) => {
       });
     }
 
-    console.error('❌ Error obteniendo productos:', error);
+    console.error('Error obteniendo productos:', error);
     return res.status(500).json({
       success: false,
       message: 'Error en la base de datos: ' + error.message
@@ -920,7 +920,7 @@ app.post('/api/productos/cargar-csv', upload.single('archivo'), async (req, res)
       client.release();
     }
   } catch (error) {
-    console.error('❌ Error en carga CSV de productos:', error);
+    console.error('Error en carga CSV de productos:', error);
     return res.status(500).json({
       success: false,
       message: 'Error procesando el archivo CSV',

@@ -39,21 +39,21 @@ const clientes = [
 
 async function insertarClientes() {
   try {
-    console.log('🔄 Insertando clientes de prueba...\n');
+    console.log('Insertando clientes de prueba...\n');
     
     for (const cliente of clientes) {
       await pool.query(
         'INSERT INTO clientes (cedula_cliente, nombre_cliente, direccion_cliente, telefono_cliente, email_cliente) VALUES ($1, $2, $3, $4, $5)',
         [cliente.cedula, cliente.nombre, cliente.direccion, cliente.telefono, cliente.email]
       );
-      console.log(`✅ Cliente insertado: ${cliente.nombre} (${cliente.cedula})`);
+      console.log(`Cliente insertado: ${cliente.nombre} (${cliente.cedula})`);
     }
     
     const result = await pool.query('SELECT COUNT(*) FROM clientes');
-    console.log(`\n📊 Total de clientes en BD: ${result.rows[0].count}`);
+    console.log(`\nTotal de clientes en BD: ${result.rows[0].count}`);
     
   } catch (error) {
-    console.error('❌ Error:', error.message);
+    console.error('Error:', error.message);
   } finally {
     await pool.end();
   }

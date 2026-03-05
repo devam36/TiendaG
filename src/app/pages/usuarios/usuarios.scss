@@ -80,12 +80,6 @@ $transicion: all 0.3s ease;
     gap: 1rem;
   }
 
-  .icono {
-    font-weight: bold;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-  }
-
   .texto {
     flex: 1;
   }
@@ -504,11 +498,6 @@ $transicion: all 0.3s ease;
   padding: 3rem 2rem;
   text-align: center;
   color: $color-texto-ligero;
-
-  .icono-vacio {
-    font-size: 3rem;
-    opacity: 0.5;
-  }
 
   h3 {
     margin: 0;

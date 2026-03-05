@@ -45,18 +45,18 @@ export class AuthService {
   // Cambiamos el parámetro a nombre_usuario para que coincida
   // con la columna de la base de datos.
   login(nombre_usuario: string, contrasena: string): Observable<LoginResponse> {
-    console.log('🔐 Intentando login:', { nombre_usuario, contrasena });
+    console.log('Intentando login:', { nombre_usuario, contrasena });
     
     const payload = {
       nombre_usuario,
       contrasena
     };
     
-    console.log('📤 Enviando payload:', payload);
+    console.log('Enviando payload:', payload);
     
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, payload).pipe(
       tap(response => {
-        console.log('✅ Respuesta del servidor:', response);
+        console.log('Respuesta del servidor:', response);
         if (response.success && response.user) {
           // Guardar usuario en localStorage solo en el navegador
           if (isPlatformBrowser(this.platformId)) {
@@ -66,7 +66,7 @@ export class AuthService {
         }
       }),
       catchError((error: any) => {
-        console.error('❌ Error en login:', error);
+        console.error('Error en login:', error);
         const detalles = error?.error ?? error?.message ?? String(error);
         console.error('   Detalles del error:', detalles);
 

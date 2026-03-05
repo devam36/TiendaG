@@ -10,11 +10,11 @@ const pool = new Pool({
 
 async function diagnosticar() {
   try {
-    console.log('🔍 DIAGNÓSTICO DE RENDIMIENTO - PROVEEDORES\n');
+    console.log('DIAGNÓSTICO DE RENDIMIENTO - PROVEEDORES\n');
     console.log('='.repeat(60));
 
     // 1. Verificar índices
-    console.log('\n📋 1. ÍNDICES EN LA TABLA PROVEEDORES:');
+    console.log('\n1. ÍNDICES EN LA TABLA PROVEEDORES:');
     console.log('-'.repeat(60));
     
     const indicesQuery = `
@@ -28,17 +28,17 @@ async function diagnosticar() {
     const indices = await pool.query(indicesQuery);
     
     if (indices.rows.length === 0) {
-      console.log('❌ NO HAY ÍNDICES en la tabla proveedores');
+      console.log('NO HAY ÍNDICES en la tabla proveedores');
       console.log('   Esto puede causar consultas lentas');
     } else {
       indices.rows.forEach(idx => {
-        console.log(`✅ ${idx.indexname}`);
+        console.log(`${idx.indexname}`);
         console.log(`   ${idx.indexdef}`);
       });
     }
 
     // 2. Estadísticas de la tabla
-    console.log('\n📊 2. ESTADÍSTICAS DE LA TABLA:');
+    console.log('\n2. ESTADÍSTICAS DE LA TABLA:');
     console.log('-'.repeat(60));
     
     const statsQuery = `
@@ -69,7 +69,7 @@ async function diagnosticar() {
     }
 
     // 3. Medir tiempo de consultas
-    console.log('\n⏱️  3. PRUEBAS DE RENDIMIENTO:');
+    console.log('\n3. PRUEBAS DE RENDIMIENTO:');
     console.log('-'.repeat(60));
     
     // Consulta sin ORDER BY
@@ -91,7 +91,7 @@ async function diagnosticar() {
     console.log(`   con campos específicos: ${time3}ms`);
 
     // 4. Información del planificador
-    console.log('\n📐 4. PLAN DE EJECUCIÓN:');
+    console.log('\n4. PLAN DE EJECUCIÓN:');
     console.log('-'.repeat(60));
     
     const explainQuery = `
@@ -107,17 +107,17 @@ async function diagnosticar() {
     });
 
     // 5. Verificar configuración de la conexión
-    console.log('\n🔧 5. CONFIGURACIÓN DEL POOL:');
+    console.log('\n5. CONFIGURACIÓN DEL POOL:');
     console.log('-'.repeat(60));
     console.log(`   Total Conexiones: ${pool.totalCount}`);
     console.log(`   Conexiones Activas: ${pool.idleCount}`);
     console.log(`   Esperando Conexión: ${pool.waitingCount}`);
 
     console.log('\n' + '='.repeat(60));
-    console.log('✅ Diagnóstico completado\n');
+    console.log('Diagnóstico completado\n');
 
   } catch (error) {
-    console.error('❌ Error en diagnóstico:', error.message);
+    console.error('Error en diagnóstico:', error.message);
   } finally {
     await pool.end();
   }

@@ -149,7 +149,7 @@ VALUES
 
 ## Seguridad (IMPORTANTE)
 
-⚠️ **NOTA DE SEGURIDAD:** El código actual almacena la contraseña en texto plano en la base de datos. Para producción:
+**NOTA DE SEGURIDAD:** El código actual almacena la contraseña en texto plano en la base de datos. Para producción:
 
 1. Usar hashing seguro (bcrypt, Argon2, etc.)
 2. Implementar HTTPS

@@ -1,4 +1,4 @@
-﻿<main class="login-main">
+<main class="login-main">
   <section class="login-card">
     <h1>Bienvenidos a la Tienda Genérica</h1>
 
@@ -9,12 +9,12 @@
 
       <div class="form-group">
         <label for="nombre_usuario">Nombre de usuario</label>
-        <input id="nombre_usuario" type="text" placeholder="Ingresa tu nombre de usuario" [(ngModel)]="nombre_usuario" name="nombre_usuario" />
+        <input id="nombre_usuario" type="text" placeholder="Ingresa tu nombre de usuario" [(ngModel)]="nombre_usuario" name="nombre_usuario" [disabled]="isLoading" />
       </div>
 
       <div class="form-group">
         <label for="contrasena">Contraseña</label>
-        <input id="contrasena" type="password" placeholder="Ingresa tu contraseña" [(ngModel)]="contrasena" name="contrasena" />
+        <input id="contrasena" type="password" placeholder="Ingresa tu contraseña" [(ngModel)]="contrasena" name="contrasena" [disabled]="isLoading" />
       </div>
 
       <div class="button-group">

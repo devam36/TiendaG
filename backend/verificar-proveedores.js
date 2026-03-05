@@ -10,7 +10,7 @@ const pool = new Pool({
 
 async function verificarProveedores() {
   try {
-    console.log('🔍 Verificando tabla de proveedores...\n');
+    console.log('Verificando tabla de proveedores...\n');
 
     // Verificar estructura de la tabla
     const estructuraQuery = `
@@ -23,8 +23,8 @@ async function verificarProveedores() {
     const estructura = await pool.query(estructuraQuery);
     
     if (estructura.rows.length === 0) {
-      console.log('❌ La tabla "proveedores" no existe.');
-      console.log('\n📝 Creando tabla proveedores...\n');
+      console.log('La tabla "proveedores" no existe.');
+      console.log('\nCreando tabla proveedores...\n');
       
       // Crear tabla si no existe
       await pool.query(`
@@ -37,10 +37,10 @@ async function verificarProveedores() {
         );
       `);
       
-      console.log('✅ Tabla proveedores creada exitosamente\n');
+      console.log('Tabla proveedores creada exitosamente\n');
       
       // Insertar datos de ejemplo
-      console.log('📝 Insertando proveedores de ejemplo...\n');
+      console.log('Insertando proveedores de ejemplo...\n');
       
       await pool.query(`
         INSERT INTO proveedores (nit_proveedor, nombre_proveedor, direccion, telefono, ciudad)
@@ -51,10 +51,10 @@ async function verificarProveedores() {
         ON CONFLICT (nit_proveedor) DO NOTHING;
       `);
       
-      console.log('✅ Proveedores de ejemplo insertados\n');
+      console.log('Proveedores de ejemplo insertados\n');
     } else {
-      console.log('✅ Tabla "proveedores" existe\n');
-      console.log('📋 Estructura de la tabla:\n');
+      console.log('Tabla "proveedores" existe\n');
+      console.log('Estructura de la tabla:\n');
       estructura.rows.forEach(col => {
         console.log(`   - ${col.column_name}: ${col.data_type} (${col.is_nullable === 'NO' ? 'Obligatorio' : 'Opcional'})`);
       });
@@ -64,11 +64,11 @@ async function verificarProveedores() {
     const countResult = await pool.query('SELECT COUNT(*) FROM proveedores');
     const count = parseInt(countResult.rows[0].count);
     
-    console.log(`\n📊 Total de proveedores registrados: ${count}\n`);
+    console.log(`\nTotal de proveedores registrados: ${count}\n`);
 
     // Insertar datos de ejemplo si no hay proveedores
     if (count === 0) {
-      console.log('📝 Insertando proveedores de ejemplo...\n');
+      console.log('Insertando proveedores de ejemplo...\n');
       
       await pool.query(`
         INSERT INTO proveedores (nitproveedor, nombre_proveedor, direccion_proveedor, telefono_proveedor, ciudad_proveedor)
@@ -79,16 +79,16 @@ async function verificarProveedores() {
         ON CONFLICT (nitproveedor) DO NOTHING;
       `);
       
-      console.log('✅ Proveedores de ejemplo insertados\n');
+      console.log('Proveedores de ejemplo insertados\n');
       
       // Actualizar count
       const newCountResult = await pool.query('SELECT COUNT(*) FROM proveedores');
       const newCount = parseInt(newCountResult.rows[0].count);
-      console.log(`📊 Total de proveedores ahora: ${newCount}\n`);
+      console.log(`Total de proveedores ahora: ${newCount}\n`);
     }
 
     if (count > 0 || true) {
-      console.log('📋 Proveedores registrados:\n');
+      console.log('Proveedores registrados:\n');
       const proveedores = await pool.query('SELECT * FROM proveedores ORDER BY nombre_proveedor');
       
       proveedores.rows.forEach(p => {
@@ -101,9 +101,9 @@ async function verificarProveedores() {
       });
     }
 
-    console.log('\n✅ Verificación completada exitosamente');
+    console.log('\nVerificación completada exitosamente');
   } catch (error) {
-    console.error('❌ Error durante la verificación:', error.message);
+    console.error('Error durante la verificación:', error.message);
   } finally {
     await pool.end();
   }

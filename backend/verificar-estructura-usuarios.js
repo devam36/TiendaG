@@ -22,13 +22,13 @@ function pregunta(texto) {
 
 async function verificarEstructura() {
   try {
-    console.log('🔍 Verificando estructura de usuarios...\n');
+    console.log('Verificando estructura de usuarios...\n');
     
     const result = await pool.query('SELECT * FROM usuarios');
     
     if (result.rows.length === 0) {
-      console.log('❌ No hay usuarios en la tabla.');
-      console.log('\n📝 Para crear un usuario con la estructura correcta:');
+      console.log('No hay usuarios en la tabla.');
+      console.log('\nPara crear un usuario con la estructura correcta:');
       console.log('   - nombre_usuario: username para login (ej: "admin", "maria")');
       console.log('   - usuario: tipo/rol (ej: "admin", "vendedor", "supervisor")\n');
       console.log('Ejecuta este SQL:');
@@ -43,7 +43,7 @@ VALUES
       return;
     }
     
-    console.log(`✅ Se encontraron ${result.rows.length} usuario(s):\n`);
+    console.log(`Se encontraron ${result.rows.length} usuario(s):\n`);
     
     // Analizar datos para detectar posibles problemas
     let posibleProblema = false;
@@ -64,26 +64,26 @@ VALUES
       );
       
       if (!usuarioPareceTipo && nombrePareceTipoONombreCompleto) {
-        console.log(`  ⚠️  POSIBLE PROBLEMA: Parece que los campos están invertidos`);
+        console.log(`  POSIBLE PROBLEMA: Parece que los campos están invertidos`);
         posibleProblema = true;
       } else if (usuarioPareceTipo && !nombrePareceTipoONombreCompleto) {
-        console.log(`  ✅ Estructura parece correcta`);
+        console.log(`  Estructura parece correcta`);
       }
       
       console.log('');
     });
     
-    console.log('\n📋 ESTRUCTURA CORRECTA:');
+    console.log('\nESTRUCTURA CORRECTA:');
     console.log('   - nombre_usuario: Username para login (ej: "admin", "maria", "juan")');
     console.log('   - usuario: Tipo/rol del usuario (ej: "admin", "vendedor", "supervisor")');
-    console.log('\n💡 Para iniciar sesión, usa el valor del campo "nombre_usuario"\n');
+    console.log('\nPara iniciar sesión, usa el valor del campo "nombre_usuario"\n');
     
     if (posibleProblema) {
-      console.log('⚠️  ATENCIÓN: Se detectaron posibles problemas en la estructura de datos.');
+      console.log('ATENCIÓN: Se detectaron posibles problemas en la estructura de datos.');
       const respuesta = await pregunta('\n¿Deseas ver un script SQL para corregir esto? (s/n): ');
       
       if (respuesta.toLowerCase() === 's') {
-        console.log('\n📝 Script SQL para intercambiar los valores:');
+        console.log('\nScript SQL para intercambiar los valores:');
         console.log('-- PRECAUCIÓN: Verifica antes de ejecutar\n');
         result.rows.forEach((user) => {
           console.log(`UPDATE usuarios 
@@ -99,7 +99,7 @@ WHERE cedula_usuario = ${user.cedula_usuario};\n`);
     rl.close();
     
   } catch (error) {
-    console.error('❌ Error al consultar la base de datos:', error.message);
+    console.error('Error al consultar la base de datos:', error.message);
     await pool.end();
     rl.close();
     process.exit(1);

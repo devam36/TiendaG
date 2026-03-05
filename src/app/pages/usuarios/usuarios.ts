@@ -72,9 +72,9 @@ export class UsuariosComponent implements OnInit, OnDestroy {
             this.usuarios = response.data;
             // No mostrar mensaje en carga inicial
             if (this.usuarios.length > 0) {
-              console.log('✅ Usuarios cargados:', this.usuarios.length);
+              console.log('Usuarios cargados:', this.usuarios.length);
             } else {
-              console.log('ℹ️ No hay usuarios registrados');
+              console.log('No hay usuarios registrados');
             }
           } else {
             console.error('Error al cargar usuarios:', response.error);

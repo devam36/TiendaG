@@ -8,7 +8,6 @@
   <!-- Mensaje de notificación -->
   <div *ngIf="mensaje.texto" class="mensaje-container" [class.exito]="mensaje.tipo === 'exito'" [class.error]="mensaje.tipo === 'error'">
     <div class="mensaje-contenido">
-      <span class="icono">{{ mensaje.tipo === 'exito' ? 'OK' : 'Error' }}</span>
       <span class="texto">{{ mensaje.texto }}</span>
     </div>
   </div>
@@ -192,7 +191,6 @@
         <!-- Estado vacío -->
         <ng-template #sinClientes>
           <div class="estado-vacio">
-            <div class="icono-vacio">🧾</div>
             <h3>No hay clientes registrados</h3>
             <p>Usa el formulario para crear el primero</p>
           </div>

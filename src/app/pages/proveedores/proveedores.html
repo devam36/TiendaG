@@ -8,7 +8,6 @@
   <!-- Mensaje de notificación -->
   <div *ngIf="mensaje.texto" class="mensaje-container" [class.exito]="mensaje.tipo === 'exito'" [class.error]="mensaje.tipo === 'error'">
     <div class="mensaje-contenido">
-      <span class="icono">{{ mensaje.tipo === 'exito' ? 'OK' : 'Error' }}</span>
       <span class="texto">{{ mensaje.texto }}</span>
     </div>
   </div>
