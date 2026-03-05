@@ -3,8 +3,15 @@ const express = require('express');
 const cors = require('cors');
 const compression = require('compression');
 const { Pool } = require('pg');
+const multer = require('multer');
 
 const app = express();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024
+  }
+});
 
 // Habilitar compresión gzip
 app.use(compression());
@@ -42,6 +49,80 @@ const pool = new Pool({
   keepAlive: true,
   keepAliveInitialDelayMillis: 10000
 });
+
+const CAMPOS_CSV_PRODUCTOS = [
+  'codigo_producto',
+  'nombre_producto',
+  'nitproveedor',
+  'precio_compra',
+  'ivacompra',
+  'precio_venta'
+];
+
+function parseCsvLine(linea) {
+  const columnas = [];
+  let valorActual = '';
+  let enComillas = false;
+
+  for (let i = 0; i < linea.length; i += 1) {
+    const caracter = linea[i];
+
+    if (caracter === '"') {
+      if (enComillas && linea[i + 1] === '"') {
+        valorActual += '"';
+        i += 1;
+      } else {
+        enComillas = !enComillas;
+      }
+      continue;
+    }
+
+    if (caracter === ',' && !enComillas) {
+      columnas.push(valorActual.trim());
+      valorActual = '';
+      continue;
+    }
+
+    valorActual += caracter;
+  }
+
+  columnas.push(valorActual.trim());
+  return columnas;
+}
+
+function esEnteroPositivo(valor) {
+  if (!/^\d+$/.test(valor)) {
+    return false;
+  }
+
+  const numero = Number(valor);
+  return Number.isInteger(numero) && numero > 0;
+}
+
+function esDecimalValido(valor) {
+  if (!/^\d+(\.\d+)?$/.test(valor)) {
+    return false;
+  }
+
+  const numero = Number(valor);
+  return Number.isFinite(numero) && numero >= 0;
+}
+
+async function asegurarTablaProductos(client) {
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS productos (
+      codigo_producto BIGINT PRIMARY KEY,
+      nombre_producto VARCHAR(255) NOT NULL,
+      nitproveedor BIGINT NOT NULL,
+      precio_compra NUMERIC(14,2) NOT NULL,
+      ivacompra NUMERIC(14,2) NOT NULL,
+      precio_venta NUMERIC(14,2) NOT NULL,
+      CONSTRAINT fk_productos_proveedores
+        FOREIGN KEY (nitproveedor)
+        REFERENCES proveedores(nitproveedor)
+    )
+  `);
+}
 
 // Login endpoint
 // IMPORTANTE: 
@@ -620,6 +701,230 @@ app.delete('/api/proveedores/:nit', async (req, res) => {
     res.status(500).json({ 
       success: false,
       message: 'Error en la base de datos: ' + error.message 
+    });
+  }
+});
+
+// ------------------------------------------------------------------
+// CONSULTA DE PRODUCTOS
+// ------------------------------------------------------------------
+
+app.get('/api/productos', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT codigo_producto, nombre_producto, nitproveedor, precio_compra, ivacompra, precio_venta
+       FROM productos
+       ORDER BY codigo_producto`
+    );
+
+    return res.json({
+      success: true,
+      message: 'Productos obtenidos correctamente',
+      data: result.rows
+    });
+  } catch (error) {
+    if (error.code === '42P01') {
+      return res.json({
+        success: true,
+        message: 'La tabla productos aún no existe',
+        data: []
+      });
+    }
+
+    console.error('❌ Error obteniendo productos:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error en la base de datos: ' + error.message
+    });
+  }
+});
+
+// ------------------------------------------------------------------
+// CARGA MASIVA DE PRODUCTOS POR CSV
+// ------------------------------------------------------------------
+
+app.post('/api/productos/cargar-csv', upload.single('archivo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Debe adjuntar un archivo CSV en el campo "archivo"'
+      });
+    }
+
+    const nombreArchivo = (req.file.originalname || '').toLowerCase();
+    const esExtensionCsv = nombreArchivo.endsWith('.csv');
+
+    if (!esExtensionCsv) {
+      return res.status(400).json({
+        success: false,
+        message: 'El formato del archivo no es válido. Debe ser un CSV separado por comas.'
+      });
+    }
+
+    const contenidoCsv = req.file.buffer.toString('utf8').replace(/^\uFEFF/, '');
+    const lineas = contenidoCsv
+      .split(/\r?\n/)
+      .map((linea) => linea.trim())
+      .filter((linea) => linea.length > 0);
+
+    if (lineas.length < 2) {
+      return res.status(400).json({
+        success: false,
+        message: 'El archivo CSV no contiene registros para procesar.'
+      });
+    }
+
+    const encabezado = parseCsvLine(lineas[0]).map((campo) => campo.toLowerCase());
+    const encabezadoValido =
+      encabezado.length === CAMPOS_CSV_PRODUCTOS.length
+      && CAMPOS_CSV_PRODUCTOS.every((campo, idx) => campo === encabezado[idx]);
+
+    if (!encabezadoValido) {
+      return res.status(400).json({
+        success: false,
+        message: `El formato del archivo no es válido. El encabezado debe ser: ${CAMPOS_CSV_PRODUCTOS.join(', ')}`
+      });
+    }
+
+    const client = await pool.connect();
+
+    try {
+      await client.query('BEGIN');
+      await asegurarTablaProductos(client);
+
+      const proveedoresResult = await client.query('SELECT nitproveedor FROM proveedores');
+      const proveedoresExistentes = new Set(proveedoresResult.rows.map((p) => String(p.nitproveedor)));
+
+      let cargados = 0;
+      const errores = [];
+      const codigosEnArchivo = new Set();
+
+      for (let indice = 1; indice < lineas.length; indice += 1) {
+        const numeroLinea = indice + 1;
+        const columnas = parseCsvLine(lineas[indice]);
+
+        if (columnas.length !== CAMPOS_CSV_PRODUCTOS.length) {
+          errores.push({
+            linea: numeroLinea,
+            error: 'Cantidad de columnas inválida'
+          });
+          continue;
+        }
+
+        const [codigo_producto, nombre_producto, nitproveedor, precio_compra, ivacompra, precio_venta] = columnas.map((c) => c.trim());
+
+        if (!codigo_producto || !nombre_producto || !nitproveedor || !precio_compra || !ivacompra || !precio_venta) {
+          errores.push({
+            linea: numeroLinea,
+            codigo_producto: codigo_producto || null,
+            error: 'Registro incompleto. Todos los campos son obligatorios'
+          });
+          continue;
+        }
+
+        if (!esEnteroPositivo(codigo_producto)) {
+          errores.push({
+            linea: numeroLinea,
+            codigo_producto,
+            error: 'codigo_producto debe ser un entero positivo'
+          });
+          continue;
+        }
+
+        if (!esEnteroPositivo(nitproveedor)) {
+          errores.push({
+            linea: numeroLinea,
+            codigo_producto,
+            error: 'nitproveedor debe ser un entero positivo'
+          });
+          continue;
+        }
+
+        if (!esDecimalValido(precio_compra) || !esDecimalValido(ivacompra) || !esDecimalValido(precio_venta)) {
+          errores.push({
+            linea: numeroLinea,
+            codigo_producto,
+            error: 'precio_compra, ivacompra y precio_venta deben ser numéricos y mayores o iguales a 0'
+          });
+          continue;
+        }
+
+        if (codigosEnArchivo.has(codigo_producto)) {
+          errores.push({
+            linea: numeroLinea,
+            codigo_producto,
+            error: 'codigo_producto duplicado dentro del archivo'
+          });
+          continue;
+        }
+
+        if (!proveedoresExistentes.has(nitproveedor)) {
+          errores.push({
+            linea: numeroLinea,
+            codigo_producto,
+            nitproveedor,
+            error: 'El proveedor no se encuentra registrado'
+          });
+          continue;
+        }
+
+        const insertResult = await client.query(
+          `INSERT INTO productos (codigo_producto, nombre_producto, nitproveedor, precio_compra, ivacompra, precio_venta)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           ON CONFLICT (codigo_producto) DO NOTHING`,
+          [
+            codigo_producto,
+            nombre_producto,
+            nitproveedor,
+            precio_compra,
+            ivacompra,
+            precio_venta
+          ]
+        );
+
+        if (insertResult.rowCount === 0) {
+          errores.push({
+            linea: numeroLinea,
+            codigo_producto,
+            error: 'El producto ya existe en la base de datos'
+          });
+          continue;
+        }
+
+        codigosEnArchivo.add(codigo_producto);
+        cargados += 1;
+      }
+
+      await client.query('COMMIT');
+
+      const totalRegistros = lineas.length - 1;
+      const conErrores = errores.length;
+
+      return res.json({
+        success: conErrores === 0,
+        message: conErrores === 0
+          ? 'Productos cargados correctamente'
+          : 'Carga finalizada con errores en algunos registros',
+        resumen: {
+          totalRegistros,
+          cargados,
+          conErrores
+        },
+        errores
+      });
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('❌ Error en carga CSV de productos:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error procesando el archivo CSV',
+      error: error.message
     });
   }
 });

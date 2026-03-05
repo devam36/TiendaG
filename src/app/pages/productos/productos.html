@@ -1,4 +1,63 @@
-<div class="page-container">
-  <h1>📦 Gestión de Productos</h1>
-  <p>Aquí irá la gestión de productos del catálogo.</p>
+<div class="productos-container">
+  <header class="encabezado">
+    <h1>Gestión de Productos</h1>
+  </header>
+
+  <section class="seccion-carga" aria-labelledby="titulo-carga-csv">
+    <h2 id="titulo-carga-csv">Carga de productos por archivo CSV</h2>
+
+    <div class="grupo-campo">
+      <label for="archivo-csv">Seleccionar archivo CSV (separado por comas)</label>
+      <input
+        id="archivo-csv"
+        type="file"
+        accept=".csv,text/csv"
+        aria-describedby="ayuda-formato-csv"
+      >
+      <small id="ayuda-formato-csv">Formato esperado: archivo CSV delimitado por comas.</small>
+    </div>
+
+    <button type="button" class="btn-cargar">Cargar Archivo</button>
+
+    <div class="info-campos" role="note" aria-live="polite">
+      El archivo debe contener los siguientes campos en este orden: codigo_producto,
+      nombre_producto, nitproveedor, precio_compra, ivacompra y precio_venta.
+    </div>
+  </section>
+
+  <section class="seccion-tabla" aria-labelledby="titulo-tabla-productos">
+    <h2 id="titulo-tabla-productos">Listado de productos</h2>
+
+    <p class="estado-info" *ngIf="isLoading">Cargando productos...</p>
+    <p class="estado-error" *ngIf="!isLoading && mensajeError">{{ mensajeError }}</p>
+
+    <div class="tabla-contenedor">
+      <table class="tabla-productos">
+        <thead>
+          <tr>
+            <th>Código Producto</th>
+            <th>Nombre Producto</th>
+            <th>NIT Proveedor</th>
+            <th>Precio Compra</th>
+            <th>IVA Compra</th>
+            <th>Precio Venta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let producto of productos; trackBy: trackByCodigo">
+            <td>{{ producto.codigo_producto }}</td>
+            <td>{{ producto.nombre_producto }}</td>
+            <td>{{ producto.nitproveedor }}</td>
+            <td>{{ producto.precio_compra }}</td>
+            <td>{{ producto.ivacompra }}</td>
+            <td>{{ producto.precio_venta }}</td>
+          </tr>
+
+          <tr *ngIf="!isLoading && !mensajeError && productos.length === 0">
+            <td colspan="6" class="estado-vacio">No hay productos para mostrar.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 </div>
