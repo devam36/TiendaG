@@ -44,26 +44,43 @@ $transicion: all 0.3s ease;
   min-height: 100vh;
   background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
   padding: 2rem;
-  font-family: $font-principal;
   color: $color-texto;
 }
 
 // Encabezado principal
 .encabezado {
-  margin-bottom: 2rem;
+  margin-bottom: 2.25rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   h1 {
-    font-size: 2.5rem;
+    font-size: var(--app-page-title-size);
     font-weight: 700;
-    color: $color-texto;
+    color: #08283F;
     margin: 0 0 0.5rem 0;
     letter-spacing: -0.5px;
+    display: inline-block;
+    text-shadow: 0 1px 0 rgba(19, 93, 145, 0.15);
+
+    &::after {
+      content: '';
+      display: block;
+      width: 72%;
+      margin: 0.45rem auto 0;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #08283F 0%, #135D91 100%);
+    }
   }
 
   .subtitulo {
-    font-size: 1rem;
-    color: $color-texto-ligero;
+    font-size: var(--app-subtitle-size);
+    color: #135D91;
+    font-weight: 500;
     margin: 0;
+    text-align: center;
   }
 }
 
@@ -128,7 +145,6 @@ $transicion: all 0.3s ease;
   gap: 1.5rem;
 }
 
-.seccion-busqueda,
 .seccion-formulario,
 .seccion-lista {
   background: white;
@@ -144,84 +160,12 @@ $transicion: all 0.3s ease;
   }
 
   h2 {
-    font-size: 1.3rem;
+    font-size: var(--app-panel-title-size);
     font-weight: 600;
     margin: 0 0 1.5rem 0;
     color: $color-texto;
     border-bottom: 2px solid $color-primario;
     padding-bottom: 0.75rem;
-  }
-}
-
-// Búsqueda
-.busqueda-contenido {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
-  .busqueda-label {
-    font-size: 1rem;
-    font-weight: 500;
-    color: $color-texto;
-    margin: 0;
-  }
-
-  .busqueda-ayuda {
-    font-size: 0.875rem;
-    color: $color-texto-ligero;
-    margin: 0.5rem 0 0 0;
-    font-style: italic;
-  }
-}
-
-.grupo-busqueda {
-  display: flex;
-  gap: 0.75rem;
-
-  .input-busqueda {
-    flex: 1;
-    padding: 0.75rem;
-    border: 2px solid $color-borde;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    transition: $transicion;
-    position: relative;
-    z-index: 25;
-    background-color: white;
-    pointer-events: auto;
-
-    &:focus {
-      outline: none;
-      border-color: $color-primario;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-  }
-
-  .btn-buscar {
-    padding: 0.75rem 1.5rem;
-    background-color: $color-primario;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: $transicion;
-    white-space: nowrap;
-    position: relative;
-    z-index: 20;
-    pointer-events: auto;
-
-    &:hover:not(:disabled) {
-      background-color: $color-primario-hover;
-      transform: translateY(-1px);
-    }
-
-    &:disabled {
-      background-color: $color-borde;
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
   }
 }
 
@@ -316,15 +260,19 @@ $transicion: all 0.3s ease;
     }
 
     &-secundario {
-      background-color: $color-secundario;
-      color: white;
+      background-color: #0D4268 !important;
+      color: #ffffff !important;
+      border-color: #0D4268 !important;
 
       &:hover {
-        background-color: color.mix(#000, $color-secundario, 10%);
+        background-color: #135D91 !important;
+        color: #ffffff !important;
+        border-color: #135D91 !important;
       }
 
       &:disabled {
         background-color: $color-borde;
+        color: #ffffff !important;
         cursor: not-allowed;
       }
     }
@@ -335,17 +283,58 @@ $transicion: all 0.3s ease;
 .encabezado-lista {
   @include flex-space-between;
   align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 
   h2 {
     margin: 0;
+    font-size: var(--app-panel-title-size);
+  }
+
+  .acciones-lista {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-left: auto;
+  }
+
+  .input-busqueda-lista {
+    min-width: 220px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid $color-borde;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    transition: $transicion;
+
+    &:focus {
+      outline: none;
+      border-color: $color-primario;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
   }
 
   .btn-recargar {
-    background: none;
-    border: none;
-    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    background-color: $color-fondo;
+    color: $color-texto;
+    border: 1px solid $color-borde;
+    border-radius: 0.5rem;
     cursor: pointer;
+    transition: $transicion;
+    font-weight: 500;
+
+    &:hover:not(:disabled) {
+      background-color: $color-primario;
+      color: white;
+      border-color: $color-primario;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
+
 }
 
 .tabla-contenedor {
@@ -367,38 +356,37 @@ $transicion: all 0.3s ease;
     background-color: $color-fondo;
   }
 
-  .rol-badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    text-transform: capitalize;
-  }
-
   .celda-acciones {
     display: flex;
     gap: 0.5rem;
 
     .btn-accion {
-      padding: 0.25rem 0.5rem;
-      border: none;
-      border-radius: 0.25rem;
+      padding: 0.4rem 0.9rem;
+      border: 1px solid transparent;
+      border-radius: 0.5rem;
       cursor: pointer;
       transition: $transicion;
+      font-weight: 500;
 
       &.editar {
-        background-color: $color-primario;
-        color: white;
+        background-color: #dbeafe;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
 
         &:hover {
-          background-color: $color-primario-hover;
+          background-color: #bfdbfe;
+          color: #1e40af;
         }
       }
 
       &.eliminar {
-        background-color: $color-error;
-        color: white;
+        background-color: #fee2e2;
+        color: #b91c1c;
+        border-color: #fecaca;
 
         &:hover {
-          background-color: color.mix(#000, $color-error, 10%);
+          background-color: #fecaca;
+          color: #991b1b;
         }
       }
 
@@ -414,4 +402,38 @@ $transicion: all 0.3s ease;
   text-align: center;
   padding: 2rem;
   color: $color-texto-ligero;
+}
+
+@media (max-width: 768px) {
+  .encabezado-lista {
+    .acciones-lista {
+      width: 100%;
+      margin-left: 0;
+      flex-wrap: wrap;
+    }
+
+    .input-busqueda-lista {
+      flex: 1;
+      min-width: 180px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .encabezado-lista {
+    .acciones-lista {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .input-busqueda-lista {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .btn-recargar {
+      width: 100%;
+    }
+  }
 }

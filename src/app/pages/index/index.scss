@@ -1,14 +1,14 @@
 // ============================================
 // VARIABLES
 // ============================================
-$color-primary: #2c3e50;
-$color-text: #333333;
-$color-text-light: #666666;
-$color-background: #f8f9fa;
-$color-border: #e0e0e0;
-$color-button-bg: #0B353D;
-$color-button-hover: #34495e;
-$color-white: #74D5E7;
+$color-primary: #08283F;
+$color-text: #08283F;
+$color-text-light: #135D91;
+$color-background: #E8F4FC;
+$color-border: #97CCF2;
+$color-button-bg: #0D4268;
+$color-button-hover: #135D91;
+$color-white: #ffffff;
 
 $border-radius-button: 8px;
 $transition-speed: 0.3s;
@@ -24,7 +24,6 @@ $padding-base: 1rem;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: $color-background;
   color: $color-text;
   line-height: 1.6;
@@ -85,18 +84,18 @@ body {
 // TÍTULO PRINCIPAL
 // ============================================
 .title {
-  font-size: 2.5rem;
+  font-size: var(--app-page-title-size);
   font-weight: 700;
   color: $color-primary;
   margin-bottom: 1rem;
   line-height: 1.2;
 
   @media (max-width: 768px) {
-    font-size: 2rem;
+    font-size: calc(var(--app-page-title-size) * 0.84);
   }
 
   @media (max-width: 480px) {
-    font-size: 1.5rem;
+    font-size: calc(var(--app-page-title-size) * 0.68);
   }
 }
 
@@ -104,16 +103,16 @@ body {
 // SUBTÍTULO
 // ============================================
 .subtitle {
-  font-size: 1.1rem;
+  font-size: var(--app-subtitle-size);
   color: $color-text-light;
   font-weight: 400;
   line-height: 1.6;
 
   @media (max-width: 768px) {
-    font-size: 1rem;
+    font-size: var(--app-subtitle-size);
   }
 
   @media (max-width: 480px) {
-    font-size: 0.95rem;
+    font-size: calc(var(--app-subtitle-size) * 0.95);
   }
 }

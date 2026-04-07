@@ -1,4 +1,146 @@
-<div class="page-container">
-  <h1>Reportes</h1>
-  <p>Aquí irán los reportes de tu tienda.</p>
+<div class="reportes-container">
+  <header class="encabezado">
+    <h1>Consultas del Sistema</h1>
+    <p>Genere reportes en pantalla de usuarios, clientes y total de ventas por cliente.</p>
+  </header>
+
+  <div class="mensaje" *ngIf="mensaje().texto" [class.exito]="mensaje().tipo === 'exito'" [class.error]="mensaje().tipo === 'error'">
+    {{ mensaje().texto }}
+  </div>
+
+  <section class="card">
+    <div class="card-header">
+      <h2>Listado de Usuarios</h2>
+      <div class="card-actions">
+        <button type="button" (click)="consultarUsuarios()" [disabled]="loadingUsuarios()">
+          {{ loadingUsuarios() ? 'Consultando...' : 'Consultar usuarios' }}
+        </button>
+      </div>
+    </div>
+
+    <ng-container *ngIf="usuarios().length > 0; else sinUsuarios">
+      <div class="tabla-contenedor" *ngIf="usuariosVisibles()">
+      <table>
+        <thead>
+          <tr>
+            <th>Cédula</th>
+            <th>Nombre</th>
+            <th>Usuario</th>
+            <th>Correo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let usuario of usuarios()">
+            <td>{{ usuario.cedula_usuario }}</td>
+            <td>{{ usuario.nombre_usuario }}</td>
+            <td>{{ usuario.usuario }}</td>
+            <td>{{ usuario.email_usuario }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="acciones-finales">
+        <button type="button" class="btn-secundario" (click)="toggleUsuariosVisibles()">
+          Ocultar
+        </button>
+      </div>
+      </div>
+    </ng-container>
+    <ng-template #sinUsuarios>
+      <p class="estado">No hay datos cargados. Presione Consultar usuarios.</p>
+    </ng-template>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <h2>Listado de Clientes</h2>
+      <div class="card-actions">
+        <button type="button" (click)="consultarClientes()" [disabled]="loadingClientes()">
+          {{ loadingClientes() ? 'Consultando...' : 'Consultar clientes' }}
+        </button>
+      </div>
+    </div>
+
+    <ng-container *ngIf="clientes().length > 0; else sinClientes">
+      <div class="tabla-contenedor" *ngIf="clientesVisibles()">
+      <table>
+        <thead>
+          <tr>
+            <th>Cédula</th>
+            <th>Nombre</th>
+            <th>Dirección</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cliente of clientes()">
+            <td>{{ cliente.cedula_cliente }}</td>
+            <td>{{ cliente.nombre_cliente }}</td>
+            <td>{{ cliente.direccion_cliente }}</td>
+            <td>{{ cliente.telefono_cliente }}</td>
+            <td>{{ cliente.email_cliente }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="acciones-finales">
+        <button type="button" class="btn-secundario" (click)="toggleClientesVisibles()">
+          Ocultar
+        </button>
+      </div>
+      </div>
+    </ng-container>
+    <ng-template #sinClientes>
+      <p class="estado">No hay datos cargados. Presione Consultar clientes.</p>
+    </ng-template>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <h2>Total de Ventas por Cliente</h2>
+      <div class="card-actions">
+        <button type="button" (click)="consultarVentasPorCliente()" [disabled]="loadingVentasPorCliente()">
+          {{ loadingVentasPorCliente() ? 'Consultando...' : 'Consultar ventas por cliente' }}
+        </button>
+      </div>
+    </div>
+
+    <ng-container *ngIf="ventasPorCliente().length > 0; else sinVentasCliente">
+      <div class="tabla-contenedor" *ngIf="ventasPorClienteVisibles()">
+      <div class="resumen-total">
+        <span>Total de ventas</span>
+        <strong>{{ formatearMoneda(totalVentasGeneral) }}</strong>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Cédula</th>
+            <th>Cliente</th>
+            <th>Cantidad Ventas</th>
+            <th>Total sin IVA</th>
+            <th>Total IVA</th>
+            <th>Total con IVA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let venta of ventasPorCliente()">
+            <td>{{ venta.cedula_cliente }}</td>
+            <td>{{ venta.nombre_cliente }}</td>
+            <td>{{ venta.cantidad_ventas }}</td>
+            <td>{{ formatearMoneda(venta.total_sin_iva) }}</td>
+            <td>{{ formatearMoneda(venta.total_iva) }}</td>
+            <td>{{ formatearMoneda(venta.total_con_iva) }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="acciones-finales">
+        <button type="button" class="btn-secundario" (click)="toggleVentasPorClienteVisibles()">
+          Ocultar
+        </button>
+      </div>
+      </div>
+    </ng-container>
+    <ng-template #sinVentasCliente>
+      <p class="estado">No hay datos cargados. Presione Consultar ventas por cliente.</p>
+    </ng-template>
+  </section>
 </div>

@@ -15,30 +15,6 @@
   <div class="contenido-principal">
     <!-- Panel lateral: Formulario -->
     <aside class="panel-formulario">
-      <!-- Sección de búsqueda -->
-      <section class="seccion-busqueda">
-        <h2>Buscar y Crear Proveedor</h2>
-        <div class="busqueda-contenido">
-          <label class="busqueda-label">Buscar por NIT:</label>
-          <div class="grupo-busqueda">
-            <input
-              type="text"
-              [(ngModel)]="formulario.nitproveedor"
-              placeholder="Ingrese NIT"
-              class="input-busqueda"
-            >
-            <button
-              (click)="buscarPorNit()"
-              [disabled]="isLoading || !formulario.nitproveedor"
-              class="btn btn-buscar"
-            >
-              {{ isLoading ? 'Buscando...' : 'Buscar' }}
-            </button>
-          </div>
-          <p class="busqueda-ayuda">Dejar en blanco para crear nuevo proveedor</p>
-        </div>
-      </section>
-
       <!-- Formulario principal -->
       <section class="seccion-formulario">
         <h2>{{ modo === 'crear' ? 'Crear Nuevo' : 'Actualizar' }} Proveedor</h2>
@@ -54,6 +30,8 @@
               name="nitproveedor"
               placeholder="Ej: 900123456"
               maxlength="20"
+              inputmode="numeric"
+              pattern="[0-9]*"
               [disabled]="modo === 'actualizar'"
               required
             >
@@ -122,25 +100,16 @@
             <button
               type="submit"
               class="btn btn-principal"
-              [disabled]="isLoading"
+              [disabled]="isSavingProveedor"
             >
-              {{ isLoading ? 'Procesando...' : (modo === 'crear' ? 'Crear Proveedor' : 'Actualizar Proveedor') }}
-            </button>
-
-            <button
-              type="button"
-              (click)="eliminarProveedor()"
-              class="btn btn-peligro"
-              [disabled]="isLoading || !formulario.nitproveedor"
-            >
-              Eliminar
+              {{ isSavingProveedor ? 'Procesado' : (modo === 'crear' ? 'Crear Proveedor' : 'Actualizar Proveedor') }}
             </button>
 
             <button
               type="button"
               (click)="limpiarFormulario()"
               class="btn btn-secundario"
-              [disabled]="isLoading"
+              [disabled]="isSavingProveedor"
             >
               Limpiar
             </button>
@@ -154,14 +123,33 @@
       <section class="seccion-lista">
         <div class="encabezado-lista">
           <h2>Proveedores Registrados</h2>
-          <button
-            (click)="cargarProveedores()"
-            class="btn-recargar"
-            [disabled]="isLoading"
-            title="Recargar lista"
-          >
-            Recargar
-          </button>
+          <div class="acciones-lista">
+            <input
+              type="text"
+              [(ngModel)]="nitBusqueda"
+              placeholder="NIT para buscar"
+              (keyup.enter)="accionPrincipalListaProveedores()"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              class="input-busqueda-lista"
+            >
+            <button
+              (click)="accionPrincipalListaProveedores()"
+              class="btn-recargar"
+              [disabled]="isBuscandoNit"
+              title="Buscar por NIT"
+            >
+              {{ isBuscandoNit ? 'Buscando...' : 'Buscar' }}
+            </button>
+            <button
+              (click)="limpiarFiltroLista()"
+              class="btn-recargar"
+              [disabled]="isLoading"
+              title="Mostrar todos"
+            >
+              Ver todos
+            </button>
+          </div>
         </div>
 
         <!-- Estado de carga -->
@@ -192,18 +180,19 @@
                 <td>{{ proveedor.ciudad_proveedor }}</td>
                 <td class="celda-acciones">
                   <button
+                    type="button"
                     (click)="seleccionarProveedor(proveedor)"
                     class="btn-accion editar"
                     title="Editar"
-                    [disabled]="isLoading"
                   >
                     Editar
                   </button>
                   <button
+                    type="button"
                     (click)="eliminarDesdeTabla(proveedor.nitproveedor)"
                     class="btn-accion eliminar"
                     title="Eliminar"
-                    [disabled]="isLoading"
+                    [disabled]="isEliminando"
                   >
                     Eliminar
                   </button>

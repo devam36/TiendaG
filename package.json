@@ -3,7 +3,17 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "npm run start:all",
+    "start:frontend:legacy": "ng serve",
+    "start:frontend": "npm run prestart:frontend && npm run start:frontend:raw",
+    "start:frontend:raw": "ng serve --port 4200 --host 127.0.0.1 --no-open",
+    "start:frontend:wait-backend": "wait-on http-get://127.0.0.1:3000/api/health && npm run start:frontend:raw",
+    "start:backend": "npm run prestart:backend && npm run start:backend:raw",
+    "start:backend:raw": "npm --prefix backend start",
+    "prestart:frontend": "kill-port 4200",
+    "prestart:backend": "kill-port 3000",
+    "prestart:all": "kill-port 3000 4200",
+    "start:all": "npm run prestart:all && concurrently -n BACKEND,FRONTEND -c cyan,green \"npm run start:backend:raw\" \"npm run start:frontend:wait-backend\"",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
@@ -42,8 +52,12 @@
     "@angular/compiler-cli": "^21.0.0",
     "@types/express": "^5.0.1",
     "@types/node": "^20.17.19",
+    "@vitest/browser-preview": "^4.1.2",
+    "concurrently": "^9.2.1",
     "jsdom": "^27.1.0",
+    "kill-port": "^2.0.1",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "wait-on": "^8.0.3"
   }
 }

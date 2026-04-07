@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, of, takeUntil } from 'rxjs';
+import { catchError, finalize, timeout } from 'rxjs/operators';
 import { ProveedoresService, Proveedor } from '../../shared/services/proveedores.service';
 
 @Component({
@@ -14,11 +15,20 @@ import { ProveedoresService, Proveedor } from '../../shared/services/proveedores
 export class ProveedoresComponent implements OnInit, OnDestroy {
   private proveedoresService = inject(ProveedoresService);
   private destroy$ = new Subject<void>();
+  private reintentoInicialProveedores = false;
+  private reintentoTimeout: ReturnType<typeof setTimeout> | null = null;
+  private mensajeTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // Estado del componente
   proveedores: Proveedor[] = [];
+  todosProveedores: Proveedor[] = [];
   isLoading = false;
+  isSavingProveedor = false;
+  isBuscandoNit = false;
+  isEliminando = false;
   modo: 'crear' | 'actualizar' = 'crear';
+  nitBusqueda = '';
+  filtroNitActivo: string | null = null;
 
   // Formulario
   formulario: Proveedor = {
@@ -36,12 +46,27 @@ export class ProveedoresComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
+    this.proveedoresService.proveedores$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((proveedores) => {
+        this.todosProveedores = proveedores;
+        this.aplicarFiltroEnLista();
+      });
+
     if (!this.destroy$.closed) {
       this.cargarProveedores();
     }
   }
 
   ngOnDestroy(): void {
+    if (this.reintentoTimeout) {
+      clearTimeout(this.reintentoTimeout);
+      this.reintentoTimeout = null;
+    }
+    if (this.mensajeTimeout) {
+      clearTimeout(this.mensajeTimeout);
+      this.mensajeTimeout = null;
+    }
     if (!this.destroy$.closed) {
       this.destroy$.next();
       this.destroy$.complete();
@@ -49,21 +74,24 @@ export class ProveedoresComponent implements OnInit, OnDestroy {
   }
 
   // Cargar todos los proveedores
-  cargarProveedores(): void {
+  cargarProveedores(force: boolean = false): void {
     if (this.destroy$.closed) {
       return;
     }
 
     this.isLoading = true;
     
-    this.proveedoresService.cargarProveedores()
+    this.proveedoresService.cargarProveedores(force)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           if (response.success && response.data) {
-            this.proveedores = response.data;
+            this.todosProveedores = response.data;
+            this.aplicarFiltroEnLista();
+            this.reintentoInicialProveedores = false;
           } else {
             this.mostrarMensaje(response.message || 'No se pudieron cargar los proveedores', 'error');
+            this.reintentarCargaInicialProveedores();
           }
           this.isLoading = false;
         },
@@ -71,40 +99,94 @@ export class ProveedoresComponent implements OnInit, OnDestroy {
           console.error('Error al cargar proveedores:', error);
           this.mostrarMensaje('Error al cargar proveedores', 'error');
           this.isLoading = false;
+          this.reintentarCargaInicialProveedores();
         }
       });
   }
 
+  private reintentarCargaInicialProveedores(): void {
+    if (this.reintentoInicialProveedores || this.destroy$.closed) {
+      return;
+    }
+
+    this.reintentoInicialProveedores = true;
+    this.reintentoTimeout = setTimeout(() => {
+      if (!this.destroy$.closed) {
+        this.cargarProveedores(true);
+      }
+      this.reintentoTimeout = null;
+    }, 1500);
+  }
+
   // Buscar proveedor por NIT
   buscarPorNit(): void {
-    const nit = this.formulario.nitproveedor.trim();
+    const nit = String(this.nitBusqueda ?? '').trim();
     
     if (!nit) {
       this.mostrarMensaje('Por favor ingrese un NIT para buscar', 'error');
       return;
     }
 
-    this.isLoading = true;
+    if (!/^\d+$/.test(nit)) {
+      this.mostrarMensaje('El NIT debe contener solo números', 'error');
+      return;
+    }
+
+    const proveedorLocal = this.todosProveedores.find((p) => p.nitproveedor === nit);
+    if (proveedorLocal) {
+      this.seleccionarProveedor(proveedorLocal);
+      this.filtroNitActivo = nit;
+      this.aplicarFiltroEnLista();
+      this.mostrarMensaje('Proveedor encontrado', 'exito');
+      return;
+    }
+
+    this.isBuscandoNit = true;
     this.proveedoresService.obtenerPorNit(nit)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        timeout(8000),
+        catchError(() => of({ success: false, message: 'Proveedor no encontrado', data: undefined })),
+        finalize(() => {
+          this.isBuscandoNit = false;
+        })
+      )
       .subscribe({
         next: (response) => {
           if (response.success && response.data) {
-            this.formulario = { ...response.data };
-            this.modo = 'actualizar';
+            this.seleccionarProveedor(response.data);
+            this.filtroNitActivo = nit;
+            this.aplicarFiltroEnLista();
             this.mostrarMensaje('Proveedor encontrado', 'exito');
           } else {
             this.mostrarMensaje('Proveedor no encontrado', 'error');
-            this.limpiarFormulario();
+            this.filtroNitActivo = nit;
+            this.aplicarFiltroEnLista();
           }
-          this.isLoading = false;
         },
         error: (error) => {
           console.error('Error al buscar proveedor:', error);
           this.mostrarMensaje('Error al buscar proveedor', 'error');
-          this.isLoading = false;
         }
       });
+  }
+
+  accionPrincipalListaProveedores(): void {
+    const nit = String(this.nitBusqueda ?? '').trim();
+
+    if (!nit) {
+      this.filtroNitActivo = null;
+      this.cargarProveedores();
+      return;
+    }
+
+    this.buscarPorNit();
+  }
+
+  limpiarFiltroLista(): void {
+    this.nitBusqueda = '';
+    this.filtroNitActivo = null;
+    this.cargarProveedores();
   }
 
   // Crear nuevo proveedor
@@ -113,24 +195,26 @@ export class ProveedoresComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.isLoading = true;
+    this.isSavingProveedor = true;
     this.proveedoresService.crearProveedor(this.formulario)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isSavingProveedor = false;
+        })
+      )
       .subscribe({
         next: (response) => {
           if (response.success) {
             this.mostrarMensaje('Proveedor creado exitosamente', 'exito');
             this.limpiarFormulario();
-            this.cargarProveedores();
           } else {
             this.mostrarMensaje(response.message || 'Error al crear proveedor', 'error');
           }
-          this.isLoading = false;
         },
         error: (error) => {
           console.error('Error al crear proveedor:', error);
           this.mostrarMensaje('Error al crear proveedor', 'error');
-          this.isLoading = false;
         }
       });
   }
@@ -142,60 +226,27 @@ export class ProveedoresComponent implements OnInit, OnDestroy {
     }
 
     const nit = this.formulario.nitproveedor;
-    this.isLoading = true;
+    this.isSavingProveedor = true;
 
     this.proveedoresService.actualizarProveedor(nit, this.formulario)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isSavingProveedor = false;
+        })
+      )
       .subscribe({
         next: (response) => {
           if (response.success) {
             this.mostrarMensaje('Proveedor actualizado exitosamente', 'exito');
             this.limpiarFormulario();
-            this.cargarProveedores();
           } else {
             this.mostrarMensaje(response.message || 'Error al actualizar proveedor', 'error');
           }
-          this.isLoading = false;
         },
         error: (error) => {
           console.error('Error al actualizar proveedor:', error);
           this.mostrarMensaje('Error al actualizar proveedor', 'error');
-          this.isLoading = false;
-        }
-      });
-  }
-
-  // Eliminar proveedor
-  eliminarProveedor(): void {
-    const nit = this.formulario.nitproveedor.trim();
-    
-    if (!nit) {
-      this.mostrarMensaje('Por favor ingrese un NIT para eliminar', 'error');
-      return;
-    }
-
-    if (!confirm(`¿Está seguro que desea eliminar el proveedor con NIT ${nit}?`)) {
-      return;
-    }
-
-    this.isLoading = true;
-    this.proveedoresService.eliminarProveedor(nit)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.mostrarMensaje('Proveedor eliminado exitosamente', 'exito');
-            this.limpiarFormulario();
-            this.cargarProveedores();
-          } else {
-            this.mostrarMensaje(response.message || 'Error al eliminar proveedor', 'error');
-          }
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error al eliminar proveedor:', error);
-          this.mostrarMensaje('Error al eliminar proveedor', 'error');
-          this.isLoading = false;
         }
       });
   }
@@ -203,6 +254,9 @@ export class ProveedoresComponent implements OnInit, OnDestroy {
   // Seleccionar proveedor de la tabla para editar
   seleccionarProveedor(proveedor: Proveedor): void {
     this.formulario = { ...proveedor };
+    this.nitBusqueda = proveedor.nitproveedor;
+    this.filtroNitActivo = proveedor.nitproveedor;
+    this.aplicarFiltroEnLista();
     this.modo = 'actualizar';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -213,23 +267,33 @@ export class ProveedoresComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.isLoading = true;
+    this.isEliminando = true;
     this.proveedoresService.eliminarProveedor(nit)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isEliminando = false;
+        })
+      )
       .subscribe({
         next: (response) => {
           if (response.success) {
             this.mostrarMensaje('Proveedor eliminado exitosamente', 'exito');
-            this.cargarProveedores();
+            if (this.filtroNitActivo === nit) {
+              this.filtroNitActivo = null;
+              this.nitBusqueda = '';
+              this.aplicarFiltroEnLista();
+            }
+            if (this.formulario.nitproveedor === nit) {
+              this.limpiarFormulario();
+            }
           } else {
             this.mostrarMensaje(response.message || 'Error al eliminar proveedor', 'error');
           }
-          this.isLoading = false;
         },
         error: (error) => {
           console.error('Error al eliminar proveedor:', error);
           this.mostrarMensaje('Error al eliminar proveedor', 'error');
-          this.isLoading = false;
         }
       });
   }
@@ -240,6 +304,11 @@ export class ProveedoresComponent implements OnInit, OnDestroy {
 
     if (!nitproveedor?.trim()) {
       this.mostrarMensaje('El NIT es obligatorio', 'error');
+      return false;
+    }
+
+    if (!/^\d+$/.test(nitproveedor.trim())) {
+      this.mostrarMensaje('El NIT debe contener solo números', 'error');
       return false;
     }
 
@@ -275,7 +344,21 @@ export class ProveedoresComponent implements OnInit, OnDestroy {
       telefono_proveedor: '',
       ciudad_proveedor: ''
     };
+    this.nitBusqueda = '';
+    this.filtroNitActivo = null;
+    this.aplicarFiltroEnLista();
     this.modo = 'crear';
+  }
+
+  private aplicarFiltroEnLista(): void {
+    if (this.filtroNitActivo === null) {
+      this.proveedores = [...this.todosProveedores];
+      return;
+    }
+
+    this.proveedores = this.todosProveedores.filter(
+      (proveedor) => proveedor.nitproveedor === this.filtroNitActivo
+    );
   }
 
   // Guardar (crear o actualizar según el modo)
@@ -290,8 +373,12 @@ export class ProveedoresComponent implements OnInit, OnDestroy {
   // Mostrar mensaje
   mostrarMensaje(texto: string, tipo: 'exito' | 'error'): void {
     this.mensaje = { texto, tipo };
-    setTimeout(() => {
+    if (this.mensajeTimeout) {
+      clearTimeout(this.mensajeTimeout);
+    }
+    this.mensajeTimeout = setTimeout(() => {
       this.mensaje = { texto: '', tipo: 'exito' };
+      this.mensajeTimeout = null;
     }, 5000);
   }
 

@@ -1,4 +1,122 @@
-<div class="page-container">
-  <h1>Gestión de Ventas</h1>
-  <p>Aquí irá el registro y gestión de ventas.</p>
+<div class="ventas-container">
+  <header class="encabezado">
+    <h1>Gestión de Ventas</h1>
+  </header>
+
+  <div class="mensaje" *ngIf="mensaje().texto" [class.exito]="mensaje().tipo === 'exito'" [class.error]="mensaje().tipo === 'error'">
+    {{ mensaje().texto }}
+  </div>
+
+  <section class="card">
+    <h2>1. Buscar Cliente</h2>
+    <div class="fila">
+      <input
+        type="text"
+        [(ngModel)]="cedulaClienteBusqueda"
+        placeholder="Cédula del cliente"
+        inputmode="numeric"
+        pattern="[0-9]*"
+      >
+      <button type="button" (click)="buscarCliente()" [disabled]="isBuscandoCliente()">
+        {{ isBuscandoCliente() ? 'Buscando...' : 'Buscar cliente' }}
+      </button>
+    </div>
+
+    <div class="resultado" *ngIf="cliente() as clienteEncontrado">
+      <p><strong>Cédula:</strong> {{ clienteEncontrado.cedula_cliente }}</p>
+      <p><strong>Nombre:</strong> {{ clienteEncontrado.nombre_cliente }}</p>
+      <p><strong>Correo:</strong> {{ clienteEncontrado.email_cliente }}</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Usuario de la Venta</h2>
+    <div class="fila fila-compacta">
+      <input
+        type="text"
+        [(ngModel)]="cedulaUsuario"
+        placeholder="Cédula del usuario que registra"
+        inputmode="numeric"
+        pattern="[0-9]*"
+      >
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Agregar Productos (Máximo 3)</h2>
+    <div class="fila">
+      <input
+        type="text"
+        [(ngModel)]="codigoProductoBusqueda"
+        placeholder="Código del producto"
+        inputmode="numeric"
+        pattern="[0-9]*"
+      >
+      <button type="button" (click)="buscarProducto()" [disabled]="isBuscandoProducto()">
+        {{ isBuscandoProducto() ? 'Buscando...' : 'Buscar producto' }}
+      </button>
+    </div>
+
+    <div class="resultado" *ngIf="producto() as productoEncontrado">
+      <p><strong>Producto:</strong> {{ productoEncontrado.nombre_producto }}</p>
+      <p><strong>Valor unitario:</strong> {{ productoEncontrado.precio_venta }}</p>
+      <p><strong>IVA (%):</strong> {{ productoEncontrado.ivacompra }}</p>
+
+      <div class="fila fila-compacta">
+        <input
+          type="number"
+          [(ngModel)]="cantidadProducto"
+          min="1"
+          step="1"
+          placeholder="Cantidad"
+        >
+        <button type="button" (click)="agregarProducto()">Agregar producto</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" *ngIf="itemsVenta().length > 0">
+    <h2>4. Totalizar Venta</h2>
+
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Valor Unitario</th>
+            <th>Total</th>
+            <th>IVA</th>
+            <th>Total con IVA</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of itemsVenta()">
+            <td>{{ item.codigo_producto }}</td>
+            <td>{{ item.nombre_producto }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>{{ item.valor_unitario }}</td>
+            <td>{{ item.valor_total }}</td>
+            <td>{{ item.valor_iva }}</td>
+            <td>{{ item.valor_total_con_iva }}</td>
+            <td>
+              <button type="button" class="btn-eliminar" (click)="quitarProducto(item.codigo_producto)">Quitar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="totales">
+      <p><strong>Valor total venta (sin IVA):</strong> {{ subtotalVenta }}</p>
+      <p><strong>Valor total IVA:</strong> {{ totalIvaVenta }}</p>
+      <p><strong>Valor total con IVA:</strong> {{ totalConIvaVenta }}</p>
+    </div>
+
+    <button type="button" class="btn-registrar" (click)="registrarVenta()" [disabled]="isGuardandoVenta()">
+      {{ isGuardandoVenta() ? 'Registrando venta...' : 'Registrar venta' }}
+    </button>
+  </section>
 </div>
