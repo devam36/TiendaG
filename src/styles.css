@@ -1,13 +1,147 @@
 /* You can add global styles to this file, and also import other style files */
-/* Fix potenciales overlays invisibles que bloquean interacción */
-html, body, app-root, .layout-container, .main-content {
-	pointer-events: auto !important;
+
+:root {
+	--blue-50: #E8F4FC;
+	--blue-200: #97CCF2;
+	--blue-500: #1D90E2;
+	--blue-700: #135D91;
+	--blue-800: #0D4268;
+	--blue-900: #08283F;
+	--blue-950: #030E17;
+	--app-view-bg: var(--blue-50);
+	--app-text: var(--blue-900);
+	--app-muted: var(--blue-700);
+	--app-card: #ffffff;
+	--app-border: #cfe4f5;
+	--app-font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	--app-body-size: 1rem;
+	--app-page-title-size: clamp(2rem, 2.8vw, 2.55rem);
+	--app-panel-title-size: 1.25rem;
+	--app-subtitle-size: 1rem;
 }
 
-/* Si existe algún overlay dinámico, asegurar que no bloquee la UI por defecto */
-.overlay, .modal-backdrop, .app-blocker {
-	display: none !important;
-	pointer-events: none !important;
+html,
+body {
+	background-color: var(--app-view-bg);
+	color: var(--app-text);
+	font-family: var(--app-font);
+	font-size: var(--app-body-size);
+	line-height: 1.6;
+}
+
+button,
+input,
+select,
+textarea {
+	font-family: inherit;
+}
+
+.layout-container,
+.main-content,
+.usuarios-container,
+.clientes-container,
+.proveedores-container,
+.productos-container,
+.ventas-container,
+.reportes-container,
+.home-main,
+.login-main,
+.main {
+	background: var(--app-view-bg) !important;
+}
+
+h1,
+h2,
+h3 {
+	color: var(--app-text);
+}
+
+p,
+small,
+label {
+	color: var(--app-muted);
+}
+
+.seccion-formulario,
+.seccion-lista,
+.card,
+.login-card,
+.mensaje-container,
+.tabla-contenedor {
+	border-color: var(--app-border) !important;
+}
+
+.seccion-formulario,
+.seccion-lista,
+.card,
+.login-card {
+	background: var(--app-card);
+}
+
+.btn-principal,
+.btn-cargar,
+.btn-registrar,
+.btn-aceptar,
+.btn-login,
+.card-header button,
+.fila button {
+	background-color: var(--blue-800) !important;
+	border-color: var(--blue-800) !important;
+	color: #ffffff !important;
+}
+
+.btn-principal:hover,
+.btn-cargar:hover,
+.btn-registrar:hover,
+.btn-aceptar:hover,
+.btn-login:hover,
+.card-header button:hover,
+.fila button:hover {
+	background-color: var(--blue-700) !important;
+	border-color: var(--blue-700) !important;
+}
+
+.btn-secundario,
+.btn-cancelar,
+.btn-recargar,
+.btn-ver-todos,
+.btn-buscar {
+	border-color: var(--blue-700) !important;
+	color: var(--blue-700) !important;
+}
+
+.tabla-usuarios thead,
+.tabla-clientes thead,
+.tabla-proveedores thead,
+.tabla-contenedor thead,
+table thead {
+	background: linear-gradient(135deg, var(--blue-700) 0%, var(--blue-500) 100%) !important;
+	color: #ffffff !important;
+}
+
+/* Garantiza contraste alto en superficies oscuras */
+.main-header,
+.sidebar,
+.header,
+.btn-principal,
+.btn-cargar,
+.btn-registrar,
+.btn-aceptar,
+.btn-login,
+.card-header button,
+.fila button,
+.tabla-usuarios thead,
+.tabla-clientes thead,
+.tabla-proveedores thead,
+.tabla-contenedor thead,
+table thead {
+	color: #E8F4FC !important;
+}
+
+.main-header *,
+.sidebar *,
+.header * {
+	color: inherit;
 }
 
 /* Mejora rendimiento visual: reducir sombras y animaciones en listas grandes */

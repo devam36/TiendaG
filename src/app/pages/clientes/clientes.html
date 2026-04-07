@@ -15,30 +15,6 @@
   <div class="contenido-principal">
     <!-- Panel lateral: Formulario -->
     <aside class="panel-formulario">
-      <!-- Sección de búsqueda -->
-      <section class="seccion-busqueda">
-        <h2>Buscar y Crear Cliente</h2>
-        <div class="busqueda-contenido">
-          <label class="busqueda-label">Buscar por cédula:</label>
-          <div class="grupo-busqueda">
-            <input
-              type="text"
-              [(ngModel)]="formulario.cedula_cliente"
-              placeholder="Ingrese cédula"
-              class="input-busqueda"
-            >
-            <button
-              (click)="buscarPorCedula()"
-              [disabled]="isLoading || !formulario.cedula_cliente"
-              class="btn btn-buscar"
-            >
-              {{ isLoading ? 'Buscando...' : 'Buscar' }}
-            </button>
-          </div>
-          <p class="busqueda-ayuda">Dejar en blanco para crear nuevo cliente</p>
-        </div>
-      </section>
-
       <!-- Formulario principal -->
       <section class="seccion-formulario">
         <h2>{{ modo === 'crear' ? 'Crear Nuevo' : 'Actualizar' }} Cliente</h2>
@@ -117,16 +93,16 @@
             <button 
               type="submit" 
               class="btn btn-principal"
-              [disabled]="isLoading"
+              [disabled]="isSavingCliente"
             >
-              {{ isLoading ? 'Procesando...' : (modo === 'crear' ? 'Crear Cliente' : 'Actualizar Cliente') }}
+              {{ isSavingCliente ? 'Creado' : (modo === 'crear' ? 'Crear Cliente' : 'Actualizar Cliente') }}
             </button>
 
             <button 
               type="button" 
               class="btn btn-secundario"
               (click)="cancelar()"
-              [disabled]="isLoading"
+              [disabled]="isSavingCliente"
             >
               Limpiar
             </button>
@@ -140,9 +116,23 @@
       <section class="seccion-lista">
         <div class="encabezado-lista">
           <h2>Lista de Clientes ({{ clientes.length }})</h2>
-          <button class="btn-recargar" (click)="cargarClientes()" [disabled]="isLoading" title="Recargar lista">
-            ↻ Recargar
-          </button>
+          <div class="acciones-lista">
+            <input
+              type="text"
+              [(ngModel)]="cedulaBusqueda"
+              placeholder="Cédula para buscar"
+              (keyup.enter)="accionPrincipalListaClientes()"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              class="input-busqueda-lista"
+            >
+            <button class="btn-recargar" (click)="accionPrincipalListaClientes()" [disabled]="isBuscandoCedula" title="Buscar por cédula">
+              {{ isBuscandoCedula ? 'Buscando...' : 'Buscar' }}
+            </button>
+            <button class="btn-recargar" (click)="limpiarFiltroLista()" [disabled]="isLoading" title="Mostrar todos">
+              Ver todos
+            </button>
+          </div>
         </div>
 
         <!-- Tabla de clientes -->
@@ -159,7 +149,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let c of clientes" [class.seleccionado]="clienteSeleccionado?.cedula_cliente === c.cedula_cliente">
+              <tr *ngFor="let c of clientes; trackBy: trackByCedula" [class.seleccionado]="clienteSeleccionado?.cedula_cliente === c.cedula_cliente">
                 <td>{{ c.cedula_cliente }}</td>
                 <td>{{ c.nombre_cliente }}</td>
                 <td>{{ c.direccion_cliente }}</td>
@@ -167,17 +157,18 @@
                 <td>{{ c.email_cliente }}</td>
                 <td class="celda-acciones">
                   <button 
+                    type="button"
                     class="btn-accion editar"
                     (click)="seleccionarCliente(c)"
-                    [disabled]="isLoading"
                     title="Editar cliente"
                   >
                     Editar
                   </button>
                   <button 
+                    type="button"
                     class="btn-accion eliminar"
                     (click)="eliminarCliente(c.cedula_cliente)"
-                    [disabled]="isLoading"
+                    [disabled]="isEliminando"
                     title="Eliminar cliente"
                   >
                     Eliminar

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
+import { retry } from 'rxjs/operators';
 
 export interface Cliente {
   cedula_cliente: number;
@@ -29,7 +30,7 @@ export interface ListaClientesResponse {
   providedIn: 'root'
 })
 export class ClientesService {
-  private apiUrl = 'http://localhost:3000/api/clientes';
+  private readonly apiUrl = '/api/clientes';
 
   private clientesActualizados = new BehaviorSubject<Cliente[]>([]);
   clientesActualizados$ = this.clientesActualizados.asObservable();
@@ -47,6 +48,7 @@ export class ClientesService {
     if (offset) params.offset = offset.toString();
 
     return this.http.get<ListaClientesResponse>(this.apiUrl, { params }).pipe(
+      retry({ count: 2, delay: 700 }),
       tap(response => {
         if (response.success && response.data) {
           this.clientesActualizados.next(response.data);
@@ -83,8 +85,9 @@ export class ClientesService {
   crearCliente(cliente: Cliente): Observable<ClienteResponse> {
     return this.http.post<ClienteResponse>(this.apiUrl, cliente).pipe(
       tap(response => {
-        if (response.success) {
-          this.cargarClientes().subscribe();
+        if (response.success && response.data) {
+          const actual = this.clientesActualizados.getValue();
+          this.clientesActualizados.next(this.ordenarPorCedula([...actual, response.data]));
         }
       }),
       catchError(error => {
@@ -103,8 +106,12 @@ export class ClientesService {
   actualizarCliente(cedula: number, cliente: Cliente): Observable<ClienteResponse> {
     return this.http.put<ClienteResponse>(`${this.apiUrl}/${cedula}`, cliente).pipe(
       tap(response => {
-        if (response.success) {
-          this.cargarClientes().subscribe();
+        if (response.success && response.data) {
+          const actual = this.clientesActualizados.getValue();
+          const actualizados = actual.map(item =>
+            item.cedula_cliente === cedula ? response.data as Cliente : item
+          );
+          this.clientesActualizados.next(this.ordenarPorCedula(actualizados));
         }
       }),
       catchError(error => {
@@ -124,7 +131,8 @@ export class ClientesService {
     return this.http.delete<ClienteResponse>(`${this.apiUrl}/${cedula}`).pipe(
       tap(response => {
         if (response.success) {
-          this.cargarClientes().subscribe();
+          const actual = this.clientesActualizados.getValue();
+          this.clientesActualizados.next(actual.filter(item => item.cedula_cliente !== cedula));
         }
       }),
       catchError(error => {
@@ -157,5 +165,9 @@ export class ClientesService {
     }
 
     return { valido: true };
+  }
+
+  private ordenarPorCedula(clientes: Cliente[]): Cliente[] {
+    return [...clientes].sort((a, b) => a.cedula_cliente - b.cedula_cliente);
   }
 }

@@ -13,11 +13,44 @@
         type="file"
         accept=".csv,text/csv"
         aria-describedby="ayuda-formato-csv"
+        (change)="onArchivoSeleccionado($event)"
       >
       <small id="ayuda-formato-csv">Formato esperado: archivo CSV delimitado por comas.</small>
     </div>
 
-    <button type="button" class="btn-cargar">Cargar Archivo</button>
+    <button type="button" class="btn-cargar" (click)="cargarArchivoCsv()" [disabled]="isUploading || !archivoSeleccionado">
+      {{ isUploading ? 'Cargando...' : 'Cargar Archivo' }}
+    </button>
+
+    <div class="progreso-carga" *ngIf="isUploading">
+      <div class="barra-progreso">
+        <div class="barra-progreso-valor" [style.width.%]="progresoCarga"></div>
+      </div>
+      <p class="estado-info">
+        {{ textoProgresoCarga || 'Procesando...' }}
+      </p>
+    </div>
+
+    <p class="estado-info" *ngIf="archivoSeleccionado">Archivo seleccionado: {{ archivoSeleccionado.name }}</p>
+    <p class="estado-error" *ngIf="mensajeCarga && !resumenCarga">{{ mensajeCarga }}</p>
+
+    <div class="resultado-carga" *ngIf="resumenCarga">
+      <p class="estado-info"><strong>Resultado:</strong> {{ mensajeCarga }}</p>
+      <ul>
+        <li>Total registros: {{ resumenCarga.totalRegistros }}</li>
+        <li>Cargados: {{ resumenCarga.cargados }}</li>
+        <li>Con errores: {{ resumenCarga.conErrores }}</li>
+      </ul>
+
+      <div class="errores-carga" *ngIf="erroresCarga.length > 0">
+        <h3>Errores detectados</h3>
+        <ul>
+          <li *ngFor="let error of erroresCarga">
+            Línea {{ error.linea }}: {{ error.error }}
+          </li>
+        </ul>
+      </div>
+    </div>
 
     <div class="info-campos" role="note" aria-live="polite">
       El archivo debe contener los siguientes campos en este orden: codigo_producto,
@@ -26,10 +59,17 @@
   </section>
 
   <section class="seccion-tabla" aria-labelledby="titulo-tabla-productos">
-    <h2 id="titulo-tabla-productos">Listado de productos</h2>
+    <div class="encabezado-tabla">
+      <h2 id="titulo-tabla-productos">Listado de productos</h2>
+      <button type="button" class="btn-reintentar" (click)="reintentarCargaProductos()">
+        Recargar
+      </button>
+    </div>
 
     <p class="estado-info" *ngIf="isLoading">Cargando productos...</p>
-    <p class="estado-error" *ngIf="!isLoading && mensajeError">{{ mensajeError }}</p>
+    <div class="estado-error estado-error-acciones" *ngIf="!isLoading && mensajeError">
+      <p>{{ mensajeError }}</p>
+    </div>
 
     <div class="tabla-contenedor">
       <table class="tabla-productos">

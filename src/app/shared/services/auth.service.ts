@@ -24,7 +24,7 @@ export interface LoginResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl: string;
   private usuarioActual = new BehaviorSubject<Usuario | null>(null);
   
   usuarioActual$ = this.usuarioActual.asObservable();
@@ -33,6 +33,11 @@ export class AuthService {
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
+    // En el navegador usamos URL relativa (el proxy de Angular redirige al backend en :3000).
+    // En SSR (Node.js) usamos la URL absoluta porque no hay proxy disponible.
+    this.apiUrl = isPlatformBrowser(this.platformId)
+      ? '/api'
+      : 'http://localhost:3000/api';
     // Cargar usuario del localStorage solo en el navegador
     if (isPlatformBrowser(this.platformId)) {
       const usuarioGuardado = localStorage.getItem('usuario');
@@ -45,18 +50,13 @@ export class AuthService {
   // Cambiamos el parámetro a nombre_usuario para que coincida
   // con la columna de la base de datos.
   login(nombre_usuario: string, contrasena: string): Observable<LoginResponse> {
-    console.log('Intentando login:', { nombre_usuario, contrasena });
-    
     const payload = {
       nombre_usuario,
       contrasena
     };
-    
-    console.log('Enviando payload:', payload);
-    
+
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, payload).pipe(
       tap(response => {
-        console.log('Respuesta del servidor:', response);
         if (response.success && response.user) {
           // Guardar usuario en localStorage solo en el navegador
           if (isPlatformBrowser(this.platformId)) {

@@ -1,14 +1,129 @@
-.page-container {
+.ventas-container {
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
-  h1 {
-    color: #2c3e50;
-    margin-bottom: 1rem;
-  }
+.encabezado h1 {
+  font-size: var(--app-page-title-size);
+  color: #2c3e50;
+  margin: 0;
+}
 
-  p {
-    color: #7f8c8d;
-    font-size: 1.1rem;
-  }
+.mensaje {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.mensaje.exito {
+  background: #ecfdf5;
+  border: 1px solid #10b981;
+  color: #065f46;
+}
+
+.mensaje.error {
+  background: #fef2f2;
+  border: 1px solid #ef4444;
+  color: #991b1b;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #d9e1ea;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.card h2 {
+  font-size: var(--app-panel-title-size);
+  margin: 0 0 0.9rem 0;
+  color: #1f2937;
+}
+
+.fila {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.fila input {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.fila button,
+.btn-registrar,
+.btn-eliminar {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #334155;
+  background: #334155;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.fila button:disabled,
+.btn-registrar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-eliminar {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.resultado {
+  margin-top: 0.8rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+
+.resultado p {
+  margin: 0.25rem 0;
+}
+
+.tabla-contenedor {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+th,
+td {
+  border: 1px solid #d1d5db;
+  padding: 0.6rem;
+  text-align: left;
+}
+
+thead {
+  background: #f3f4f6;
+}
+
+.totales {
+  margin-top: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.9rem;
+}
+
+.totales p {
+  margin: 0.25rem 0;
+}
+
+.btn-registrar {
+  margin-top: 0.9rem;
 }

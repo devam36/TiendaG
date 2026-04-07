@@ -3,13 +3,21 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { retry } from 'rxjs/operators';
 
 export interface Usuario {
   cedula_usuario: number;
   nombre_usuario: string;
   email_usuario: string;
   usuario: string;
-  password: string;
+}
+
+export interface UsuarioPayload {
+  cedula_usuario: number;
+  nombre_usuario: string;
+  email_usuario: string;
+  usuario: string;
+  password?: string;
 }
 
 export interface UsuarioResponse {
@@ -31,7 +39,7 @@ export interface ListaUsuariosResponse {
   providedIn: 'root'
 })
 export class UsuariosService {
-  private apiUrl = 'http://localhost:3000/api/usuarios';
+  private readonly apiUrl = '/api/usuarios';
   private usuariosActualizados = new BehaviorSubject<Usuario[]>([]);
   
   usuariosActualizados$ = this.usuariosActualizados.asObservable();
@@ -45,6 +53,7 @@ export class UsuariosService {
    */
   cargarUsuarios(): Observable<ListaUsuariosResponse> {
     return this.http.get<ListaUsuariosResponse>(this.apiUrl).pipe(
+      retry({ count: 2, delay: 700 }),
       tap(response => {
         if (response.success && response.data) {
           this.usuariosActualizados.next(response.data);
@@ -78,12 +87,12 @@ export class UsuariosService {
   /**
    * Crear nuevo usuario
    */
-  crearUsuario(usuario: Usuario): Observable<UsuarioResponse> {
+  crearUsuario(usuario: UsuarioPayload): Observable<UsuarioResponse> {
     return this.http.post<UsuarioResponse>(this.apiUrl, usuario).pipe(
       tap(response => {
-        if (response.success) {
-          // Recargar lista de usuarios
-          this.cargarUsuarios().subscribe();
+        if (response.success && response.data) {
+          const actual = this.usuariosActualizados.getValue();
+          this.usuariosActualizados.next(this.ordenarPorCedula([...actual, response.data]));
         }
       }),
       catchError(error => {
@@ -99,12 +108,15 @@ export class UsuariosService {
   /**
    * Actualizar usuario existente
    */
-  actualizarUsuario(cedula: number, usuario: Usuario): Observable<UsuarioResponse> {
+  actualizarUsuario(cedula: number, usuario: UsuarioPayload): Observable<UsuarioResponse> {
     return this.http.put<UsuarioResponse>(`${this.apiUrl}/${cedula}`, usuario).pipe(
       tap(response => {
-        if (response.success) {
-          // Recargar lista de usuarios
-          this.cargarUsuarios().subscribe();
+        if (response.success && response.data) {
+          const actual = this.usuariosActualizados.getValue();
+          const actualizados = actual.map(item =>
+            item.cedula_usuario === cedula ? response.data as Usuario : item
+          );
+          this.usuariosActualizados.next(this.ordenarPorCedula(actualizados));
         }
       }),
       catchError(error => {
@@ -124,8 +136,8 @@ export class UsuariosService {
     return this.http.delete<UsuarioResponse>(`${this.apiUrl}/${cedula}`).pipe(
       tap(response => {
         if (response.success) {
-          // Recargar lista de usuarios
-          this.cargarUsuarios().subscribe();
+          const actual = this.usuariosActualizados.getValue();
+          this.usuariosActualizados.next(actual.filter(item => item.cedula_usuario !== cedula));
         }
       }),
       catchError(error => {
@@ -141,7 +153,7 @@ export class UsuariosService {
   /**
    * Validar que todos los campos requeridos estén completos
    */
-  validarUsuario(usuario: Usuario): { valido: boolean; error?: string } {
+  validarUsuario(usuario: UsuarioPayload, requierePassword: boolean = true): { valido: boolean; error?: string } {
     if (!usuario.cedula_usuario) {
       return { valido: false, error: 'La cédula es requerida' };
     }
@@ -154,7 +166,7 @@ export class UsuariosService {
     if (!usuario.usuario || usuario.usuario.trim() === '') {
       return { valido: false, error: 'El usuario (rol) es requerido' };
     }
-    if (!usuario.password || usuario.password.trim() === '') {
+    if (requierePassword && (!usuario.password || usuario.password.trim() === '')) {
       return { valido: false, error: 'La contraseña es requerida' };
     }
 
@@ -170,5 +182,9 @@ export class UsuariosService {
     }
 
     return { valido: true };
+  }
+
+  private ordenarPorCedula(usuarios: Usuario[]): Usuario[] {
+    return [...usuarios].sort((a, b) => a.cedula_usuario - b.cedula_usuario);
   }
 }

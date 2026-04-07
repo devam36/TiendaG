@@ -13,30 +13,8 @@
   </div>
 
   <div class="contenido-principal">
-    <!-- Panel lateral: Búsqueda y formulario -->
+    <!-- Panel lateral: formulario -->
     <aside class="panel-formulario">
-      <!-- Sección de Búsqueda -->
-      <section class="seccion-busqueda">
-        <h2>Buscar y Crear Usuario</h2>
-        
-        <div class="busqueda-contenido">
-          <label class="busqueda-label">Buscar por cédula:</label>
-          <div class="grupo-busqueda">
-            <input 
-              type="number" 
-              [(ngModel)]="cedulaBusqueda"
-              placeholder="Ingrese cédula"
-              (keyup.enter)="buscarPorCedula()"
-              class="input-busqueda"
-            >
-            <button class="btn btn-buscar" (click)="buscarPorCedula()" [disabled]="isLoading">
-              {{ isLoading ? 'Buscando...' : 'Buscar' }}
-            </button>
-          </div>
-          <p class="busqueda-ayuda">Dejar en blanco para crear nuevo usuario</p>
-        </div>
-      </section>
-
       <!-- Formulario -->
       <section class="seccion-formulario">
         <h2>{{ modo === 'crear' ? 'Crear Nuevo' : 'Actualizar' }} Usuario</h2>
@@ -107,16 +85,29 @@
 
           <!-- Contraseña -->
           <div class="grupo-campo">
-            <label for="password">Contraseña *</label>
+            <div class="password-header" *ngIf="modo === 'actualizar'">
+              <label class="checkbox-password">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="cambiarPassword"
+                  name="cambiarPassword"
+                >
+                Cambiar contraseña
+              </label>
+            </div>
+
+            <label for="password">Contraseña {{ modo === 'crear' ? '*' : '(opcional)' }}</label>
             <input
               id="password"
               type="password"
               [(ngModel)]="formulario.password"
               name="password"
-              placeholder="Ingrese contraseña segura"
-              required
+              autocomplete="new-password"
+              [placeholder]="modo === 'crear' ? 'Ingrese contraseña segura' : 'Deje en blanco para mantener la actual'"
+              [required]="modo === 'crear' || cambiarPassword"
+              [disabled]="modo === 'actualizar' && !cambiarPassword"
             >
-            <span class="requerido">Campo obligatorio</span>
+            <span class="requerido">{{ modo === 'crear' ? 'Campo obligatorio' : 'Solo llénelo si desea cambiar la contraseña' }}</span>
           </div>
 
           <!-- Botones de acción -->
@@ -124,16 +115,16 @@
             <button 
               type="submit" 
               class="btn btn-principal"
-              [disabled]="isLoading"
+              [disabled]="isSavingUsuario"
             >
-              {{ isLoading ? 'Procesando...' : (modo === 'crear' ? 'Crear Usuario' : 'Actualizar Usuario') }}
+              {{ isSavingUsuario ? 'Subido' : (modo === 'crear' ? 'Crear Usuario' : 'Actualizar Usuario') }}
             </button>
 
             <button 
               type="button" 
               class="btn btn-secundario"
               (click)="cancelar()"
-              [disabled]="isLoading"
+              [disabled]="isSavingUsuario"
             >
               Limpiar
             </button>
@@ -147,9 +138,33 @@
       <section class="seccion-lista">
         <div class="encabezado-lista">
           <h2>Lista de Usuarios ({{ usuarios.length }})</h2>
-          <button class="btn-recargar" (click)="cargarUsuarios()" [disabled]="isLoading" title="Recargar lista">
-            ↻ Recargar
-          </button>
+          <div class="acciones-lista">
+            <input
+              type="text"
+              [(ngModel)]="cedulaBusqueda"
+              placeholder="Cédula para buscar"
+              (keyup.enter)="accionPrincipalListaUsuarios()"
+              inputmode="numeric"
+              pattern="[0-9]*"
+              class="input-busqueda-lista"
+            >
+            <button
+              class="btn-recargar btn-buscar"
+              (click)="accionPrincipalListaUsuarios()"
+              [disabled]="isBuscandoCedula"
+              title="Buscar por cédula"
+            >
+              {{ isBuscandoCedula ? 'Buscando...' : 'Buscar' }}
+            </button>
+            <button
+              class="btn-recargar btn-ver-todos"
+              (click)="limpiarFiltroLista()"
+              [disabled]="isLoading"
+              title="Mostrar todos"
+            >
+              Ver todos
+            </button>
+          </div>
         </div>
 
         <!-- Tabla de usuarios -->
@@ -165,7 +180,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let usuario of usuarios" [class.seleccionado]="usuarioBuscado?.cedula_usuario === usuario.cedula_usuario">
+              <tr *ngFor="let usuario of usuarios; trackBy: trackByCedula" [class.seleccionado]="usuarioBuscado?.cedula_usuario === usuario.cedula_usuario">
                 <td>{{ usuario.cedula_usuario }}</td>
                 <td>{{ usuario.nombre_usuario }}</td>
                 <td>{{ usuario.email_usuario }}</td>
@@ -176,17 +191,18 @@
                 </td>
                 <td class="celda-acciones">
                   <button 
+                    type="button"
                     class="btn-accion editar"
-                    (click)="cedulaBusqueda = usuario.cedula_usuario.toString(); buscarPorCedula()"
-                    [disabled]="isLoading"
+                    (click)="seleccionarUsuario(usuario)"
                     title="Editar usuario"
                   >
                     Editar
                   </button>
                   <button 
+                    type="button"
                     class="btn-accion eliminar"
                     (click)="eliminarUsuario(usuario.cedula_usuario)"
-                    [disabled]="isLoading"
+                    [disabled]="isEliminando"
                     title="Eliminar usuario"
                   >
                     Eliminar

@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f9fa;
+  background: #E8F4FC;
   padding: 1rem;
 }
 
@@ -11,20 +11,21 @@
   width: 100%;
   max-width: 420px;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #97CCF2;
   border-radius: 10px;
   padding: 2rem;
 
   h1 {
     margin: 0 0 0.5rem;
-    font-size: 1.8rem;
-    color: #1f2937;
+    font-size: var(--app-panel-title-size);
+    color: #08283F;
     text-align: center;
   }
 
   p {
     margin: 0 0 1.5rem;
-    color: #6b7280;
+    font-size: var(--app-subtitle-size);
+    color: #135D91;
     text-align: center;
   }
 }
@@ -43,11 +44,11 @@
   label {
     font-size: 0.95rem;
     font-weight: 500;
-    color: #1f2937;
+    color: #08283F;
   }
 
   input {
-    border: 2px solid #d1d5db;
+    border: 2px solid #97CCF2;
     border-radius: 6px;
     padding: 0.75rem 0.875rem;
     font-size: 0.95rem;
@@ -55,8 +56,8 @@
 
     &:focus {
       outline: none;
-      border-color: #2c3e50;
-      box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+      border-color: #1D90E2;
+      box-shadow: 0 0 0 3px rgba(29, 144, 226, 0.15);
     }
   }
 
@@ -82,13 +83,13 @@
     }
 
     &.btn-aceptar {
-      background: #2c3e50;
+      background: #0D4268;
       color: #ffffff;
 
       &:hover:not(:disabled) {
-        background: #1a252f;
+        background: #135D91;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
+        box-shadow: 0 4px 12px rgba(19, 93, 145, 0.35);
       }
 
       &:active:not(:disabled) {
@@ -97,13 +98,14 @@
     }
 
     &.btn-cancelar {
-      background: #e5e7eb;
-      color: #374151;
+      background: #97CCF2;
+      color: #08283F;
 
       &:hover:not(:disabled) {
-        background: #d1d5db;
+        background: #1D90E2;
+        color: #ffffff;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(29, 144, 226, 0.3);
       }
 
       &:active:not(:disabled) {
